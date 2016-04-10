@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="899.0" prefWidth="838.0" styleClass="background" stylesheets="@DarkTheme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <TabPane fx:id="exhumationTabPane" layoutX="206.0" layoutY="89.0" prefHeight="899.0" prefWidth="838.0" styleClass="background" stylesheets="@DarkTheme.css" tabClosingPolicy="UNAVAILABLE" tabMinWidth="262.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="55.0">
+        <tabs>
+          <Tab fx:id="applicantTab" closable="false">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <GridPane fx:id="applicantGridPane" prefHeight="899.0" prefWidth="838.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="5.0">
+                           <children>
+                              <Label fx:id="firstNameLabel" prefHeight="21.0" prefWidth="278.0" styleClass="label-bright" />
+                              <Label fx:id="cityLabel" prefHeight="21.0" prefWidth="300.0" styleClass="label-bright" GridPane.rowIndex="2" />
+                              <Label fx:id="lastNameLabel" prefHeight="21.0" prefWidth="277.0" styleClass="label-bright" GridPane.rowIndex="1" />
+                              <Label fx:id="streetLabel" prefHeight="21.0" prefWidth="336.0" styleClass="label-bright" GridPane.rowIndex="3" />
+                              <Label fx:id="postalCodeLabel" prefHeight="21.0" prefWidth="290.0" styleClass="label-bright" GridPane.rowIndex="4" />
+                              <Label fx:id="phoneNumberLabel" prefHeight="21.0" prefWidth="272.0" styleClass="label-bright" GridPane.rowIndex="5" />
+                              <Label fx:id="emailLabel" prefHeight="21.0" prefWidth="277.0" styleClass="label-bright" GridPane.rowIndex="6" />
+                              <Label GridPane.rowIndex="9" />
+                              <TextField fx:id="firstNameTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="410.0" GridPane.columnIndex="1" />
+                              <TextField fx:id="lastNameTextField" layoutX="203.0" layoutY="77.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="410.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <TextField fx:id="cityTextField" layoutX="203.0" layoutY="134.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="410.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <TextField fx:id="streetTextField" layoutX="203.0" layoutY="191.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="410.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <TextField fx:id="postalCodeTextField" layoutX="203.0" layoutY="247.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <TextField fx:id="phoneNumberTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="242.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                              <TextField fx:id="emailTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="410.0" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                              <Button fx:id="nextButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleNextButton" prefHeight="33.0" prefWidth="105.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="14">
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
+                              </Button>
+                           </children>
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="624.0" minWidth="10.0" prefWidth="419.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="689.0" minWidth="10.0" prefWidth="419.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                        </GridPane>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+          <Tab fx:id="deceasedTab" closable="false">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <GridPane fx:id="deceasedGridPane" prefHeight="899.0" prefWidth="838.0" AnchorPane.bottomAnchor="-0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="5.0">
+                           <children>
+                              <Button fx:id="backButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleBackButton" prefHeight="33.0" prefWidth="105.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="14">
+                                 <GridPane.margin>
+                                    <Insets right="125.0" />
+                                 </GridPane.margin>
+                              </Button>
+                              <Label fx:id="decFirstNameLabel" prefHeight="21.0" prefWidth="278.0" styleClass="label-bright" />
+                              <Label fx:id="ageLabel" prefHeight="21.0" prefWidth="300.0" styleClass="label-bright" GridPane.rowIndex="3" />
+                              <Label fx:id="decLastNameLabel" prefHeight="21.0" prefWidth="277.0" styleClass="label-bright" GridPane.rowIndex="1" />
+                              <TextField fx:id="decFirstNameTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="410.0" GridPane.columnIndex="1" />
+                              <TextField fx:id="decLastNameTextField" layoutX="203.0" layoutY="77.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="410.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Button fx:id="secondNextButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleSecondNextButton" prefHeight="33.0" prefWidth="105.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="14">
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
+                              </Button>
+                              <TextField fx:id="sectorNumberTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="65.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2">
+                                 <GridPane.margin>
+                                    <Insets left="263.0" />
+                                 </GridPane.margin>
+                              </TextField>
+                              <TextField fx:id="graveNumberTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="65.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2">
+                                 <GridPane.margin>
+                                    <Insets left="65.0" />
+                                 </GridPane.margin></TextField>
+                              <Label fx:id="sectorNumberLabel" styleClass="label-bright" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2">
+                                 <GridPane.margin>
+                                    <Insets left="210.0" />
+                                 </GridPane.margin>
+                              </Label>
+                              <Label fx:id="graveNumberLabel" styleClass="label-bright" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Label fx:id="graveLabel" styleClass="label-bright" GridPane.rowIndex="2" />
+                              <TextField fx:id="ageTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                           </children>
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="624.0" minWidth="10.0" prefWidth="419.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="689.0" minWidth="10.0" prefWidth="419.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                        </GridPane>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </Tab>
+            <Tab fx:id="exhumationTab" closable="false">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <GridPane fx:id="exhumationGridPane" prefHeight="899.0" prefWidth="838.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="5.0">
+                           <children>
+                              <Label fx:id="ownerFirstNameLabel" prefHeight="21.0" prefWidth="278.0" styleClass="label-bright" />
+                              <Label fx:id="ownerCityLabel" prefHeight="21.0" prefWidth="300.0" styleClass="label-bright" GridPane.rowIndex="2" />
+                              <Label fx:id="ownerLastNameLabel" prefHeight="21.0" prefWidth="277.0" styleClass="label-bright" GridPane.rowIndex="1" />
+                              <Label fx:id="ownerStreetLabel" prefHeight="21.0" prefWidth="336.0" styleClass="label-bright" GridPane.rowIndex="3" />
+                              <Label fx:id="ownerPostalCodeLabel" prefHeight="21.0" prefWidth="290.0" styleClass="label-bright" GridPane.rowIndex="4" />
+                              <Label fx:id="ownerPhoneNumberLabel" prefHeight="21.0" prefWidth="272.0" styleClass="label-bright" GridPane.rowIndex="5" />
+                              <Label fx:id="ownerEmailLabel" prefHeight="21.0" prefWidth="277.0" styleClass="label-bright" GridPane.rowIndex="6" />
+                              <Label GridPane.rowIndex="9" />
+                              <Label fx:id="exhumationDateLabel" prefHeight="21.0" prefWidth="192.0" styleClass="label-bright" GridPane.rowIndex="9" />
+                              <Label fx:id="authorizationLabel" styleClass="label-bright" GridPane.rowIndex="8" />
+                              <Label fx:id="ownerFirstName" GridPane.columnIndex="1" />
+                              <Label fx:id="ownerLastName" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label fx:id="ownerCity" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Label fx:id="ownerEmail" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                              <Label fx:id="ownerStreet" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <Label fx:id="ownerPostalCode" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <Label fx:id="ownerPhoneNumber" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                              <Button fx:id="okButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleOkButton" prefHeight="33.0" prefWidth="105.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="14">
+                                 <GridPane.margin>
+                                    <Insets right="10.0" />
+                                 </GridPane.margin>
+                              </Button>
+                              <Button fx:id="secondBackButton" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleSecondBackButton" prefHeight="33.0" prefWidth="105.0" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="14">
+                                 <GridPane.margin>
+                                    <Insets right="125.0" />
+                                 </GridPane.margin>
+                              </Button>
+                              <CheckBox fx:id="authorizationCheckBox" mnemonicParsing="false" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                              <Label fx:id="exhumationTimeLabel" styleClass="label-bright" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                                 <GridPane.margin>
+                                    <Insets left="220.0" />
+                                 </GridPane.margin>
+                              </Label>
+                              <ComboBox fx:id="timeBox" prefHeight="30.0" prefWidth="78.0" promptText="16:30" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                                 <GridPane.margin>
+                                    <Insets left="263.0" />
+                                 </GridPane.margin>
+                              </ComboBox>
+                              <TextField fx:id="yearsTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="60.0" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                                 <GridPane.margin>
+                                    <Insets left="90.0" />
+                                 </GridPane.margin>
+                              </TextField>
+                              <TextField fx:id="monthsTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                                 <GridPane.margin>
+                                    <Insets left="45.0" />
+                                 </GridPane.margin>
+                              </TextField>
+                              <TextField fx:id="daysTextField" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="40.0" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                           </children>
+                           <columnConstraints>
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="624.0" minWidth="10.0" prefWidth="419.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="689.0" minWidth="10.0" prefWidth="419.0" />
+                           </columnConstraints>
+                           <rowConstraints>
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                           </rowConstraints>
+                        </GridPane>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+      <Label fx:id="exhumationRegistrationLabel" alignment="CENTER" layoutX="357.0" layoutY="14.0" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="33.0" styleClass="label-bright" textAlignment="CENTER" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="150.0" AnchorPane.topAnchor="10.0" />
+      <Button fx:id="cancelButton" layoutX="766.0" layoutY="18.0" mnemonicParsing="false" onAction="#handleCancelButton" AnchorPane.leftAnchor="736.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
+   </children>
+</AnchorPane>

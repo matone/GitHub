@@ -1,0 +1,214 @@
+CREATE DATABASE "GraveYardDB"
+  WITH OWNER = postgres
+       ENCODING = 'UTF8'
+       TABLESPACE = pg_default
+       LC_COLLATE = 'Slovak_Slovakia.1250'
+       LC_CTYPE = 'Slovak_Slovakia.1250'
+       CONNECTION LIMIT = -1;
+
+
+CREATE TABLE public.applicant
+(
+  id integer NOT NULL,
+  city character varying(255),
+  email character varying(255),
+  first_name character varying(255),
+  last_name character varying(255),
+  phone_number character varying(255),
+  postal_code character varying(255),
+  street character varying(255),
+  CONSTRAINT applicant_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.applicant
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.deceased
+(
+  id integer NOT NULL,
+  age integer,
+  first_name character varying(255),
+  last_name character varying(255),
+  CONSTRAINT deceased_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.deceased
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.exhumation
+(
+  id integer NOT NULL,
+  date_from timestamp without time zone,
+  applicant_id integer NOT NULL,
+  deceased_id integer NOT NULL,
+  CONSTRAINT exhumation_pkey PRIMARY KEY (id),
+  CONSTRAINT fk391rasx5swp8rbjmcu4brbkyr FOREIGN KEY (applicant_id)
+      REFERENCES public.applicant (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fk9d9qbkvvymr342il75nec01fx FOREIGN KEY (deceased_id)
+      REFERENCES public.deceased (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.exhumation
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.funeral
+(
+  id integer NOT NULL,
+  date_from timestamp without time zone,
+  date_to timestamp without time zone,
+  applicant_id integer NOT NULL,
+  deceased_id integer NOT NULL,
+  grave_id integer NOT NULL,
+  CONSTRAINT funeral_pkey PRIMARY KEY (id),
+  CONSTRAINT fkfd0lm4e7tukjcukmb67tc7vb2 FOREIGN KEY (applicant_id)
+      REFERENCES public.applicant (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fkj0ldjaa445km9ceh1lknowcvm FOREIGN KEY (deceased_id)
+      REFERENCES public.deceased (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fknufbtrt8av0ebmfrinoem63qb FOREIGN KEY (grave_id)
+      REFERENCES public.grave (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.funeral
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.grave
+(
+  id integer NOT NULL,
+  all_places_number integer,
+  full_places_number integer,
+  grave_number integer,
+  sector_id integer,
+  CONSTRAINT grave_pkey PRIMARY KEY (id),
+  CONSTRAINT fkjiuwh8osheytrpntvw6naj17u FOREIGN KEY (sector_id)
+      REFERENCES public.sector (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.grave
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.management
+(
+  id integer NOT NULL,
+  date_from timestamp without time zone,
+  date_to timestamp without time zone,
+  manager_id integer NOT NULL,
+  sector_id integer NOT NULL,
+  CONSTRAINT management_pkey PRIMARY KEY (id),
+  CONSTRAINT fk79ngcgrnmrqjestb7d5nougju FOREIGN KEY (manager_id)
+      REFERENCES public.manager (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fkjj0x4s9bhnhwrosgjnnmn5hw6 FOREIGN KEY (sector_id)
+      REFERENCES public.sector (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.management
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.manager
+(
+  id integer NOT NULL,
+  city character varying(255),
+  email character varying(255),
+  first_name character varying(255),
+  last_name character varying(255),
+  phone_number character varying(255),
+  postal_code character varying(255),
+  street character varying(255),
+  CONSTRAINT manager_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.manager
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.owner
+(
+  id integer NOT NULL,
+  city character varying(255),
+  email character varying(255),
+  first_name character varying(255),
+  last_name character varying(255),
+  phone_number character varying(255),
+  postal_code character varying(255),
+  street character varying(255),
+  CONSTRAINT owner_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.owner
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.rent
+(
+  id integer NOT NULL,
+  date_from timestamp without time zone,
+  date_to timestamp without time zone,
+  grave_id integer NOT NULL,
+  owner_id integer NOT NULL,
+  CONSTRAINT rent_pkey PRIMARY KEY (id),
+  CONSTRAINT fke3ln627vtf89gwyt2jfqegnqk FOREIGN KEY (grave_id)
+      REFERENCES public.grave (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT fkh823qm9xw5v6f9wtu8wb9hc3d FOREIGN KEY (owner_id)
+      REFERENCES public.owner (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.rent
+  OWNER TO postgres;
+
+
+
+CREATE TABLE public.sector
+(
+  id integer NOT NULL,
+  all_graves_number integer,
+  full_graves_number integer,
+  sector_number integer,
+  size integer,
+  CONSTRAINT sector_pkey PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.sector
+  OWNER TO postgres;
