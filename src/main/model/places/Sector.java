@@ -1,0 +1,90 @@
+package main.model.places;
+
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+@Entity
+@Table(name="sector")
+public class Sector {
+
+	private int id;
+	private int size;
+	private int allGravesNumber;
+	private int fullGravesNumber=0;
+	private int sectorNumber;
+	private Set<Grave> graves;
+	
+	public Sector(){
+	}
+	
+	public Sector(int number, int size, int gravesNumber){
+		setSectorNumber(number);
+		setAllGravesNumber(gravesNumber);
+		setSize(size);
+	}	
+	
+	public Sector(int number){
+		setSectorNumber(number);
+	}	
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	@OneToMany (mappedBy = "sector")
+	public Set<Grave> getRents() {
+		return graves;
+	}
+	public void setRents(Set<Grave> graves) {
+		this.graves = graves;
+	}
+
+	@Column(name = "size")
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	@Column(name = "all_graves_number")
+	public int getAllGravesNumber() {
+		return allGravesNumber;
+	}
+
+	public void setAllGravesNumber(int allGravesNumber) {
+		this.allGravesNumber = allGravesNumber;
+	}
+
+	@Column(name = "full_graves_number")
+	public int getFullGravesNumber() {
+		return fullGravesNumber;
+	}
+
+	public void setFullGravesNumber(int fullGravesNumber) {
+		this.fullGravesNumber = fullGravesNumber;
+	}
+
+	@Column(name = "sector_number")
+	public int getSectorNumber() {
+		return sectorNumber;
+	}
+
+	public void setSectorNumber(int sectorNumber) {
+		this.sectorNumber = sectorNumber;
+	}
+}

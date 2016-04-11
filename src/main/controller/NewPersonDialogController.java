@@ -1,0 +1,282 @@
+package main.controller;
+
+import java.util.ResourceBundle;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+import main.MainApp;
+import main.model.Management;
+import main.model.Rent;
+import main.model.people.Manager;
+import main.model.people.Owner;
+import main.model.people.Person;
+import main.model.places.Grave;
+import main.model.places.Sector;
+import main.util.HibernateUtil;
+
+public class NewPersonDialogController {
+	@FXML
+	private Label firstNameLabel;
+	@FXML
+	private Label lastNameLabel;
+	@FXML
+	private Label cityLabel;
+	@FXML
+	private Label streetLabel;
+	@FXML
+	private Label postalCodeLabel;
+	@FXML
+	private Label phoneNumberLabel;
+	@FXML
+	private Label emailLabel;
+	@FXML
+	private Label titleLabel;
+	@FXML
+	private TextField firstNameTextField;
+	@FXML
+	private TextField lastNameTextField;
+	@FXML
+	private TextField cityTextField;
+	@FXML
+	private TextField streetTextField;
+	@FXML
+	private TextField postalCodeTextField;
+	@FXML
+	private TextField phoneNumberTextField;
+	@FXML
+	private TextField emailTextField;
+	@FXML
+	private Button cancelButton;
+	@FXML
+	private Button okButton;
+	@FXML
+	private GridPane gridPane;
+	
+	private MainApp mainApp;
+	private Stage dialogStage;
+	private Object object;
+	private Person person;
+	private boolean graveClass;
+	private boolean okClicked = false;
+	
+	public NewPersonDialogController(MainApp mainApp){
+		setMainApp(mainApp);
+	}
+	
+	@FXML
+	private void initialize(){
+		resetText();
+	}
+	
+	public void resetText(){
+		ResourceBundle resourceBundle = mainApp.getResourceBundle();
+		firstNameLabel.setText(resourceBundle.getString("firstNameLabel"));
+		lastNameLabel.setText(resourceBundle.getString("lastNameLabel"));
+		cityLabel.setText(resourceBundle.getString("cityLabel"));
+		streetLabel.setText(resourceBundle.getString("streetLabel"));
+		postalCodeLabel.setText(resourceBundle.getString("postalCodeLabel"));
+		phoneNumberLabel.setText(resourceBundle.getString("phoneNumberLabel"));
+		emailLabel.setText(resourceBundle.getString("emailLabel"));
+		okButton.setText(resourceBundle.getString("okButton"));
+		cancelButton.setText(resourceBundle.getString("cancelButton"));
+		
+		if (graveClass){
+			titleLabel.setText(resourceBundle.getString("newPersonButtonGrave"));
+		} else{
+			titleLabel.setText(resourceBundle.getString("newPersonButtonSector"));
+		}
+		if (person!=null){
+			firstNameTextField.setText(person.getFirstName());
+			lastNameTextField.setText(person.getLastName());
+			cityTextField.setText(person.getCity());
+			streetTextField.setText(person.getStreet());
+			postalCodeTextField.setText(person.getPostalCode());
+			phoneNumberTextField.setText(person.getPhoneNumber());
+			emailTextField.setText(person.getEmail());
+		}
+	}
+	
+	@FXML
+	private void handleOkButton(){
+		if (isInputValid()){
+			SessionFactory sf = HibernateUtil.getSessionFactory();
+			Session session = sf.openSession();
+			
+			if (person!=null){
+				if((firstNameTextField.getText()!=person.getFirstName())
+						||(lastNameTextField.getText()!=person.getLastName())
+						||(cityTextField.getText()!=person.getCity())
+						||(streetTextField.getText()!=person.getStreet())
+						||(postalCodeTextField.getText()!=person.getPostalCode())
+						||(phoneNumberTextField.getText()!=person.getPhoneNumber())
+						||(emailTextField.getText()!=person.getEmail())){
+					
+					session.createSQLQuery("UPDATE "+person.getClass().getSimpleName()+
+							" SET (first_name, last_name, city, street, postal_code, phone_number, email) = ('"+
+								firstNameTextField.getText()+"', '"+ lastNameTextField.getText()+"', '"+
+								cityTextField.getText()+"', '"+ streetTextField.getText()+"', '"+
+								postalCodeTextField.getText()+"', '"+ phoneNumberTextField.getText()+"', '"+
+								emailTextField.getText()+"') WHERE id = "+ person.getId()).executeUpdate();
+					session.close();
+				}
+				setOkClicked(true);
+				dialogStage.close();
+				return;
+			}
+			
+			Transaction t = session.beginTransaction();
+			if (graveClass){
+				Owner owner = (Owner)session.createSQLQuery("SELECT * FROM Owner o "+ 
+						"WHERE o.first_name = '"+ firstNameTextField.getText()+
+						"' AND o.last_name = '"+ lastNameTextField.getText()+ 
+						"' AND o.city = '" + cityTextField.getText()+ 
+						"' AND o.street = '" + streetTextField.getText()+ 
+						"' AND o.postal_code = '"+ postalCodeTextField.getText()+ 
+						"' AND o.email = '" + emailTextField.getText()+ 
+						"' AND o.phone_number = '" + phoneNumberTextField.getText()+"'").addEntity(Owner.class).uniqueResult();
+				
+				session.createSQLQuery("UPDATE rent SET date_to = NOW() WHERE date_to IS NULL").executeUpdate();
+				if (owner == null){					
+					owner = new Owner();
+					owner.setFirstName(firstNameTextField.getText());
+					owner.setLastName(lastNameTextField.getText());
+					owner.setCity(cityTextField.getText());
+					owner.setStreet(streetTextField.getText());
+					owner.setPostalCode(postalCodeTextField.getText());
+					owner.setPhoneNumber(phoneNumberTextField.getText());
+					owner.setEmail(emailTextField.getText());
+					session.persist(owner);
+				}
+				Rent rent = new Rent(owner, (Grave) object);
+				session.persist(rent);
+				t.commit();
+			} else{
+				Manager manager = (Manager) session.createSQLQuery("SELECT * FROM Manager m "+ 
+						"WHERE m.first_name = '"+ firstNameTextField.getText()+
+						"' AND m.last_name = '"+ lastNameTextField.getText()+ 
+						"' AND m.city = '" + cityTextField.getText()+ 
+						"' AND m.street = '" + streetTextField.getText()+ 
+						"' AND m.postal_code = '"+ postalCodeTextField.getText()+ 
+						"' AND m.email = '" + emailTextField.getText()+ 
+						"' AND m.phone_number = '" + phoneNumberTextField.getText()+"'").addEntity(Manager.class).uniqueResult();
+				
+				session.createSQLQuery("UPDATE management SET date_to = NOW() WHERE date_to IS NULL").executeUpdate();
+
+				if (manager == null){
+					manager = new Manager();
+					manager.setFirstName(firstNameTextField.getText());
+					manager.setLastName(lastNameTextField.getText());
+					manager.setCity(cityTextField.getText());
+					manager.setStreet(streetTextField.getText());
+					manager.setPostalCode(postalCodeTextField.getText());
+					manager.setPhoneNumber(phoneNumberTextField.getText());
+					manager.setEmail(emailTextField.getText());
+					session.persist(manager);
+				}
+				Management management = new Management((Sector)object, manager);
+				session.persist(management);
+				t.commit();
+			}
+			setOkClicked(true);
+			session.close();
+			dialogStage.close();
+		}
+	}
+	
+	@FXML
+	private void handleCancelButton(){
+		dialogStage.close();
+	}
+	
+	public boolean isInputValid(){
+		boolean temp=true;
+		TextField tempTextField;
+		ObservableList<Object> column = FXCollections.observableArrayList();
+		column.addAll(gridPane.getChildren());
+	
+		for (Object object : column) {
+			if (object.getClass().equals(TextField.class)){
+				tempTextField = (TextField) object;
+				if (tempTextField.getText().isEmpty()){
+					temp=false;
+					tempTextField.setStyle("-fx-border-color: FF3333;-fx-border-width: 2");
+					
+				} else{
+					tempTextField.setStyle("");
+				}
+			}
+		}
+		if (!temp){
+			Alert alert = new Alert(AlertType.ERROR);
+            alert.initOwner(mainApp.getPrimaryStage());
+            alert.setTitle("Invalid Fields");
+            alert.setHeaderText("Please fill out all red fields.");
+            alert.setContentText(null);
+            alert.showAndWait();
+		}
+		return temp;
+	}
+
+	public MainApp getMainApp() {
+		return mainApp;
+	}
+
+	public void setMainApp(MainApp mainApp) {
+		this.mainApp = mainApp;
+	}
+
+	public Object getObject() {
+		return object;
+	}
+
+	public void setObject(Object object) {
+		this.object = object;
+		if (object!=null){
+			graveClass = (object.getClass()==Grave.class);
+		}
+	}
+
+	public Stage getDialogStage() {
+		return dialogStage;
+	}
+
+	public void setDialogStage(Stage dialogStage) {
+		this.dialogStage = dialogStage;
+	}
+
+	public boolean isOkClicked() {
+		return okClicked;
+	}
+
+	public void setOkClicked(boolean okClicked) {
+		this.okClicked = okClicked;
+	}
+
+	public boolean isGraveClass() {
+		return graveClass;
+	}
+
+	public void setGraveClass(boolean graveClass) {
+		this.graveClass = graveClass;
+	}
+
+	public Person getPerson() {
+		return person;
+	}
+
+	public void setPerson(Person person) {
+		this.person = person;
+	}
+}
