@@ -1,8 +1,0 @@
-
-				firstNameTextField.setText(person.getFirstName());
-				lastNameTextField.setText(person.getLastName());
-				cityTextField.setText(person.getCity());
-				streetTextField.setText(person.getStreet());
-				postalCodeTextField.setText(person.getPostalCode());
-				phoneNumberTextField.setText(person.getPhoneNumber());
-				emailTextField.setText(person.getEmail());
