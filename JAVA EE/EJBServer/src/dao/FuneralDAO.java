@@ -1,0 +1,21 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.Funeral;
+
+public class FuneralDAO {
+	
+	public List<Funeral> getFuneralsByGraveDeceased(EntityManager em, int graveId, int deceasedId){
+		
+		TypedQuery<Funeral> q = em.createNamedQuery("Funeral.getFuneralsByGraveIdOwnerId", Funeral.class).setParameter("graveId", graveId).setParameter("deceasedId", deceasedId);
+		
+		List<Funeral> rents = q.getResultList();
+		
+		return rents;
+	}
+	
+}

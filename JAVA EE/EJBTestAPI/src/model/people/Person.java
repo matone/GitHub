@@ -1,0 +1,97 @@
+package model.people;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+
+@MappedSuperclass
+public class Person implements Serializable{
+
+	private static final long serialVersionUID = -7381956719073071717L;
+
+	private int id;
+	
+	private String firstName;
+	
+	private String lastName;
+	
+	private String city;
+	
+	private String street;
+	
+	private String postalCode;
+	
+	private String email;
+	
+	private String phoneNumber;
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name = "id")
+	public int getId(){
+		return id;
+	}
+	public void setId(int id){
+		this.id = id;
+	}
+	
+	@Column(name = "first_name")
+	public String getFirstName() {
+		return firstName;
+	}	
+	public void setFirstName(String firstName) {
+		this.firstName=firstName;
+	}
+
+	@Column(name = "last_name")
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName=lastName;
+	}
+	
+	@Column(name = "city")
+	public String getCity(){
+		return city;
+	}	
+	public void setCity(String city) {
+		this.city=city;
+	}
+	
+	@Column(name = "street")
+	public String getStreet(){
+		return street;
+	}
+	public void setStreet(String street) {
+		this.street=street;
+	}
+	
+	@Column(name = "postal_code")
+	public String getPostalCode(){
+		return postalCode;
+	}
+	public void setPostalCode(String postalCode) {
+		this.postalCode=postalCode;
+	}
+	
+	@Column(name = "email")
+	public String getEmail(){
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email=email;
+	}
+	
+	@Column(name = "phone_number")
+	public String getPhoneNumber(){
+		return phoneNumber;
+	}
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber=phoneNumber;
+	}
+}

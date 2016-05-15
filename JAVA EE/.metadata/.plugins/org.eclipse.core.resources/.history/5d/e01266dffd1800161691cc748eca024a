@@ -1,0 +1,67 @@
+package facade;
+
+import java.util.List;
+
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import executive.HibExecutiveBean;
+import model.Funeral;
+import model.Management;
+import model.Rent;
+import model.places.Grave;
+import model.places.Sector;
+import remote.HibFacadeBeanRemote;
+
+@Stateless
+public class HibFacadeBean  implements HibFacadeBeanRemote{
+
+	@PersistenceContext
+	EntityManager em;
+	
+	@Override
+	public List<Sector> getSectorTree() {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Sector> sectors = hibExecutiveBean.getSectorTree(em);
+		return sectors;
+	}
+
+	@Override
+	public Grave getGraveById(int id) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Grave grave = hibExecutiveBean.getGraveById(em, id);
+		return grave;
+	}
+
+	@Override
+	public Sector getSectorById(int id) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Sector sector = hibExecutiveBean.getSectorById(em, id);
+		return sector;
+	}
+
+	@Override
+	public List<Rent> getRentsByGraveOwner(int graveId, int ownerId) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Rent> rents = hibExecutiveBean.getRentsByGraveOwner(em, graveId, ownerId);
+		return rents;
+	}
+
+	@Override
+	public List<Funeral> getFuneralsByGraveOwner(int graveId, int deceasedId) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Funeral> funerals = hibExecutiveBean.getFuneralsByGraveDeceased(em, graveId, deceasedId);
+		return funerals;
+	}
+
+	@Override
+	public List<Management> getManagementsBySectorManager(int sectorId, int managerId) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Management> managements = hibExecutiveBean.getManagementsBySectorManager(em, sectorId, managerId);
+		return managements;
+	}
+	
+	
+
+}

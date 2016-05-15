@@ -1,0 +1,44 @@
+package facade;
+
+import java.util.List;
+
+import javax.ejb.Stateless;
+
+import model.Rent;
+import model.places.Grave;
+import model.places.Sector;
+import remote.HibFacadeBeanRemote;
+import testPakaz.HibExecutiveBean;
+
+@Stateless
+public class HibFacadeBean  implements HibFacadeBeanRemote{
+
+	@Override
+	public List<Sector> getSectorTree() {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Sector> sectors = hibExecutiveBean.getSectorTree();
+		return sectors;
+	}
+
+	@Override
+	public Grave getGraveById(int id) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Grave> graves = hibExecutiveBean.getGraveById(id);
+		return graves;
+	}
+
+	@Override
+	public Sector getSectorById(int id) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Sector sector = hibExecutiveBean.getSectorById(id);
+		return sector;
+	}
+
+	@Override
+	public List<Rent> getRentByGraveOwner(int graveId, int ownerId) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Rent> rents = hibExecutiveBean.getRentByGraveOwner(graveId, ownerId);
+		return rents;
+	}
+
+}

@@ -1,0 +1,22 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.places.Grave;
+
+public class GraveDAO {
+
+	public List<Grave> getGraveById(EntityManager em){
+		
+		TypedQuery<Grave> q =  em.createNamedQuery("Grave.getGraveById", Grave.class);
+		
+		List<Grave> graves = q.getResultList();
+		
+		return graves;
+		
+	}
+	
+}

@@ -1,0 +1,29 @@
+package remote;
+
+import java.util.List;
+
+import javax.ejb.Remote;
+import javax.persistence.EntityManager;
+
+import model.Funeral;
+import model.Management;
+import model.Rent;
+import model.places.Grave;
+import model.places.Sector;
+
+@Remote
+public interface HibFacadeBeanRemote {
+	
+	public List<Sector> getSectorTree();
+	
+	public Grave getGraveById(int id);
+	
+	public Sector getSectorById(int id);
+	
+	public List<Rent> getRentsByGraveOwner(int graveId, int ownerId);
+	
+	public List<Funeral> getFuneralsByGraveOwner(int graveId, int deceasedId);
+	
+	public List<Management> getManagementsBySectorManager(int sectorId, int managerId);
+	
+}

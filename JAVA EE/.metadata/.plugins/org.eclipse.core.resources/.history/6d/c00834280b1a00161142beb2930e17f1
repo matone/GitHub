@@ -1,0 +1,19 @@
+package dao;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.people.Manager;
+
+
+public class ManagerDAO {
+
+public Manager getManagerById(EntityManager em, Manager input){
+		
+		TypedQuery<Manager> q = em.createNamedQuery("Manager.getManagersByStats", Manager.class).setParameter("firstNmae", );
+		
+		Manager manager = q.getResultList().get(0);
+		
+		return manager;
+	}	
+}

@@ -1,0 +1,39 @@
+package model.people;
+
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import model.Management;
+
+@Entity
+@Table(name = "manager")
+@NamedQueries({
+	@NamedQuery(name = "Manager.getManagersByStats",
+				query = "select m from Manager m "+
+						"where m.firstName = :firstName "+
+						"AND m.lastName = :lastName "+
+						"AND m.city = :city "+
+						"AND m.street = :street "+
+						"AND m.postalCode = :postalCode "+
+						"AND m.phoneNumber = :phoneNumber "+
+						"AND m.email = :email")
+})
+public class Manager extends Person{
+
+	private static final long serialVersionUID = 5486110610263840549L;
+	
+	private Set<Management> managements;
+		
+	@OneToMany (mappedBy = "manager")
+	public Set<Management> getManagements() {
+		return managements;
+	}
+	public void setManagements(Set<Management> managements) {
+		this.managements = managements;
+	}
+}

@@ -1,0 +1,8 @@
+package testPakaz;
+
+import javax.ejb.Remote;
+
+@Remote
+public interface TestBeanRemote {
+
+}

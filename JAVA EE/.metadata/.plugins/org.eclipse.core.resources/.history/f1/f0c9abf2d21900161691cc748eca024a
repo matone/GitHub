@@ -1,0 +1,45 @@
+package executive;
+
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.UserTransaction;
+
+import model.places.Grave;
+
+@Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
+@LocalBean
+public class TransactionExecutiveBean {
+
+	@PersistenceContext
+	private EntityManager em;
+	
+	@Resource
+	private EJBContext context;
+	
+   public boolean saveGrave(Grave grave){
+	   UserTransaction ut = context.getUserTransaction();
+	   
+	   try {
+		   ut.begin();
+		   
+		   if (grave.getId() == null){
+			   
+			   
+			   em.persist(grave);			   
+		   }
+		   
+		   return true;
+	   } catch (Exception e) {
+		   return false;
+	   }
+	   
+   }
+
+}

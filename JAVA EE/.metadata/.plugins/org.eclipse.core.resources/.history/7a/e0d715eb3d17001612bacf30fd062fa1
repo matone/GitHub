@@ -1,0 +1,36 @@
+package model.people;
+
+import java.io.Serializable;
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import model.Rent;
+
+@Entity
+@Table(name="owner")
+@NamedQueries({
+	@NamedQuery(name = "Owner.findAll",
+				query = "select o from Owner o"+
+						"left join fetch set s")
+})
+public class Owner extends Person implements Serializable{
+	
+	private static final long serialVersionUID = -8407234416676471476L;
+	
+	private Set<Rent> rents;
+	
+	
+	@OneToMany (mappedBy = "owner")
+	public Set<Rent> getRents() {
+		return rents;
+	}
+	public void setRents(Set<Rent> rents) {
+		this.rents = rents;
+	}
+	
+}

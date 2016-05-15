@@ -1,0 +1,22 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.Management;
+
+public class ManagementDAO {
+	
+	public List<Management> getManagementsBySectorOwner(EntityManager em, int sectorId, int managerId){
+		
+		TypedQuery<Management> q = em.createNamedQuery("Management.getManagementsBySectorIdManagerId", Management.class).setParameter("sectorId", sectorId).setParameter("managerId", managerId);
+		
+		List<Management> managements = q.getResultList();
+		
+		return managements;
+	}
+	
+	
+}

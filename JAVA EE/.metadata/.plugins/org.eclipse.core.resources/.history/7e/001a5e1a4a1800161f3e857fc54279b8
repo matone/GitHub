@@ -1,0 +1,238 @@
+package main;
+
+import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import main.controller.ExhumationRegistrationController;
+import main.controller.FuneralRegistrationController;
+import main.controller.IntroductionController;
+import main.controller.MainWindowController;
+import main.controller.NewPersonDialogController;
+import main.controller.SchemeOverviewController;
+import main.controller.SchemeOverviewDialogController;
+import main.controller.SearchPaneController;
+import main.controller.StatisticsController;
+import main.model.people.Person;
+import main.util.ElasticSearchUtil;
+import main.util.HibernateUtil;
+
+
+public class MainApp extends Application {
+
+	private Stage primaryStage;
+    private AnchorPane mainWindow;
+    
+    private ResourceBundle resourceBundle = ResourceBundle.getBundle("Text",Locale.FRENCH);
+    //private ResourceBundle resourceBundle = ResourceBundle.getBundle("Text", new Locale("SK"));
+    private MainWindowController mainWindowController = new MainWindowController(this);
+    private SchemeOverviewController schemeOverviewController = new SchemeOverviewController(this);
+	private FuneralRegistrationController funeralRegistrationController = new FuneralRegistrationController(this);
+	private ExhumationRegistrationController exhumationRegistrationController = new ExhumationRegistrationController(this);
+	private IntroductionController introductionController = new IntroductionController(this);
+	private SearchPaneController searchPaneController = new SearchPaneController(this);
+	private StatisticsController statisticsController = new StatisticsController(this);
+    
+    public MainApp(){
+    }
+    
+	@Override
+	public void start(Stage primaryStage) {
+		HibernateUtil.getSessionFactory();
+		this.primaryStage = primaryStage;
+		this.primaryStage.setTitle("GraveyardApp");
+		primaryStage.onCloseRequestProperty().set(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(WindowEvent event) {
+				HibernateUtil.getSessionFactory().close();
+				ElasticSearchUtil.getClient().close();
+			}
+		});
+		initMainWindow();
+	}
+	
+	public void initMainWindow(){
+		try{
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/MainWindow.fxml"));
+			loader.setController(mainWindowController);
+			ElasticSearchUtil.getClient();
+            mainWindow = (AnchorPane) loader.load();
+			Scene scene = new Scene(mainWindow);
+			primaryStage.setScene(scene);
+			primaryStage.show();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void closePrimaryStage(){
+		HibernateUtil.getSessionFactory().close();
+		ElasticSearchUtil.getClient().close();
+		primaryStage.close();
+	}
+
+	public void showFuneralRegistrationPane(){
+		try{
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/FuneralRegistrationPane.fxml"));
+			loader.setController(funeralRegistrationController);
+			mainWindowController.setRightAnchorPane(loader.load());
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void showExhumationRegistrationPane(){
+		try{
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/ExhumationRegistrationPane.fxml"));
+			loader.setController(exhumationRegistrationController);			
+            mainWindowController.setRightAnchorPane(loader.load());
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void showSearchPane(){
+		try{
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/SearchPane.fxml"));
+			loader.setController(searchPaneController);
+            mainWindowController.setRightAnchorPane(loader.load());            
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+	public void showIntroductionPane() {
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/IntroductionPane.fxml"));
+			loader.setController(introductionController);			
+			mainWindowController.setRightAnchorPane(loader.load());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void showStatisticsPane() {
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/StatisticsPane.fxml"));
+			loader.setController(statisticsController);			
+			mainWindowController.setRightAnchorPane(loader.load());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void showSchemeOverviewPane(){
+		try{
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/SchemeOverviewPane.fxml"));
+			loader.setController(schemeOverviewController);			
+			mainWindowController.setRightAnchorPane(loader.load());
+		} catch (IOException e){
+			e.printStackTrace();
+		}
+	}
+
+	public boolean showSectorChangeDialog(Object object, boolean change){
+		try{
+			SchemeOverviewDialogController schemeOverviewDialogController = new SchemeOverviewDialogController(this);
+			schemeOverviewDialogController.setObject(object);
+			schemeOverviewDialogController.setChange(change);
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/SchemeOverviewDialog.fxml"));
+			loader.setController(schemeOverviewDialogController);
+			AnchorPane pane = loader.load();
+			
+			Stage dialogStage = new Stage();
+			dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            
+            Scene scene = new Scene(pane);
+            dialogStage.setScene(scene);
+            
+            schemeOverviewDialogController.setDialogStage(dialogStage);
+			
+			dialogStage.showAndWait();
+			
+			return schemeOverviewDialogController.isOkClicked();
+		} catch(IOException e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public boolean showNewPersonDialog(Object object, Person person){
+		try{
+			NewPersonDialogController newPersonDialogController = new NewPersonDialogController(this);
+			newPersonDialogController.setPerson(person);
+			newPersonDialogController.setObject(object);
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(MainApp.class.getResource("view/NewPersonDialog.fxml"));
+			loader.setController(newPersonDialogController);
+			AnchorPane pane = loader.load();
+			
+			Stage dialogStage = new Stage();
+			dialogStage.initModality(Modality.WINDOW_MODAL);
+            dialogStage.initOwner(primaryStage);
+            
+            Scene scene = new Scene(pane);
+            dialogStage.setScene(scene);
+            
+            newPersonDialogController.setDialogStage(dialogStage);
+			
+			dialogStage.showAndWait();
+			
+			return newPersonDialogController.isOkClicked();
+		} catch(IOException e){
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	public void changeLanguage(){
+		if (getResourceBundle() == ResourceBundle.getBundle("Text_sk",Locale.FRENCH)){
+			setResourceBundle(ResourceBundle.getBundle("Text",Locale.FRENCH));
+		} else{
+			setResourceBundle(ResourceBundle.getBundle("Text_sk",Locale.FRENCH));
+		}
+		mainWindowController.resetText();
+		if (funeralRegistrationController.isInitialized()){
+			funeralRegistrationController.resetText();
+		}
+		if (exhumationRegistrationController.isInitialized()){
+			exhumationRegistrationController.resetText();
+		}
+		if (schemeOverviewController.isInitialized()){
+			schemeOverviewController.resetText();
+		}
+	}
+	
+	public static void main(String[] args) {
+		launch(args);
+	}
+
+	public Stage getPrimaryStage() {
+		return primaryStage;
+	}
+
+	public ResourceBundle getResourceBundle() {
+		return resourceBundle;
+	}
+
+	public void setResourceBundle(ResourceBundle resourceBundle) {
+		this.resourceBundle = resourceBundle;
+	}
+}

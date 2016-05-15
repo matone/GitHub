@@ -1,0 +1,38 @@
+package model.people;
+
+import java.io.Serializable;
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import model.Exhumation;
+import model.Funeral;
+
+@Entity
+@Table(name="applicant")
+public class Applicant extends Person implements Serializable{
+
+	private static final long serialVersionUID = -694815369781152440L;
+	
+	private Set<Funeral> funerals;
+	
+	private Set<Exhumation> exhumations;
+	
+	@OneToMany (mappedBy = "applicant")
+	public Set<Funeral> getFunerals() {
+		return funerals;
+	}
+	public void setFunerals(Set<Funeral> funerals) {
+		this.funerals = funerals;
+	}
+	
+	@OneToMany (mappedBy = "applicant")
+	public Set<Exhumation> getExhumations() {
+		return exhumations;
+	}
+	public void setExhumations(Set<Exhumation> exhumations) {
+		this.exhumations = exhumations;
+	}	
+}

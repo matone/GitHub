@@ -1,0 +1,23 @@
+package executive;
+
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+
+/**
+ * Session Bean implementation class TransactionExecutiveBean
+ */
+@Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
+@LocalBean
+public class TransactionExecutiveBean {
+
+    /**
+     * Default constructor. 
+     */
+    public TransactionExecutiveBean() {
+        // TODO Auto-generated constructor stub
+    }
+
+}

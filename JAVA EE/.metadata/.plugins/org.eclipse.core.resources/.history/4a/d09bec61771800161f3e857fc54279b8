@@ -1,0 +1,22 @@
+package testPakaz;
+
+import java.util.List;
+
+import javax.ejb.Remote;
+
+import model.Rent;
+import model.people.Owner;
+import model.places.Grave;
+import model.places.Sector;
+
+@Remote
+public interface TestBeanRemote {
+	
+	public List<Sector> getSectorTree();
+	
+	public Grave getGraveById(int id);
+	
+	public Sector getSectorById(int id);
+	
+	public List<Rent> getRentByGraveOwner(int graveId, int ownerId)
+}

@@ -1,0 +1,291 @@
+package executive;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
+
+import dao.FuneralDAO;
+import dao.GraveDAO;
+import dao.ManagementDAO;
+import dao.ManagerDAO;
+import dao.OwnerDAO;
+import dao.RentDAO;
+import dao.SectorDAO;
+import model.Funeral;
+import model.Management;
+import model.Rent;
+import model.people.Manager;
+import model.people.Owner;
+import model.places.Grave;
+import model.places.Sector;
+
+@Stateless
+public class HibExecutiveBean {
+	
+	public Grave getGraveById(EntityManager em, int id){
+		
+		GraveDAO gDao = new GraveDAO();
+		
+		Grave grave = gDao.getGraveById(em, id);
+		
+		List<Funeral> funerals = new ArrayList<Funeral>();
+		List<Rent> rents = new ArrayList<Rent>();
+			
+		for (Rent curRent : grave.getRents()) {
+			em.detach(curRent.getOwner());
+			em.detach(curRent);
+			curRent.getOwner().setRents(null);
+			rents.add(curRent);
+		}
+		
+		for (Funeral curFuneral : grave.getFunerals()) {
+			em.detach(curFuneral.getDeceased());
+			em.detach(curFuneral);
+			curFuneral.getDeceased().setExhumations(null);
+			curFuneral.getDeceased().setFunerals(null);
+			curFuneral.setApplicant(null);
+			funerals.add(curFuneral);
+		}
+		
+		em.detach(grave.getSector());
+		grave.getSector().setManagements(null);
+		grave.getSector().setGraves(null);
+		
+		em.detach(grave);
+		grave.setRents(rents);
+		grave.setFunerals(funerals);
+		
+		return grave;
+	}
+	
+	public Sector getSectorById(EntityManager em, int id){
+		SectorDAO sDao = new SectorDAO();
+		
+		Sector sector = sDao.getSectorById(em, id);
+		
+		List<Management> managements = new ArrayList<Management>();
+		
+		for (Management curManagement : sector.getManagements()) {
+			em.detach(curManagement.getManager());
+			em.detach(curManagement);
+			curManagement.getManager().setManagements(null);
+			managements.add(curManagement);
+		}		
+		
+		em.detach(sector);
+		sector.setGraves(null);
+		sector.setManagements(managements);
+		
+		return sector;		
+	}
+	
+	public List<Sector> getSectorTree(EntityManager em){
+		
+		SectorDAO sDao = new SectorDAO();
+		
+		List<Sector> sectors = sDao.getScheme(em);
+		
+		
+		for (Sector curSector : sectors) {
+			List<Grave> graves = new ArrayList<Grave>();
+			
+			for (Grave curGrave : curSector.getGraves()) {
+				curGrave.setRents(null);
+				em.detach(curGrave);
+				graves.add(curGrave);
+			}
+			curSector.setManagements(null);
+			curSector.setGraves(graves);
+			em.detach(curSector);
+		}
+		
+		return sectors;
+	}
+
+	public List<Rent> getRentsByGraveOwner(EntityManager em, int graveId, int ownerId){
+
+		RentDAO rDao = new RentDAO();
+		
+		List<Rent> rents = rDao.getRentsByGraveOwner(em, graveId, ownerId);
+		
+		for (Rent curRent : rents) {
+			em.detach(curRent);
+			curRent.setGrave(null);
+			curRent.setOwner(null);
+		}
+		
+		return rents;
+	}
+	
+	public List<Funeral> getFuneralsByGraveDeceased(EntityManager em, int graveId, int deceasedId){
+		FuneralDAO fDao = new FuneralDAO();
+		
+		List<Funeral> funerals = fDao.getFuneralsByGraveDeceased(em, graveId, deceasedId);
+		
+		for (Funeral curFuneral : funerals) {
+			em.detach(curFuneral);
+			curFuneral.setGrave(null);
+			curFuneral.setApplicant(null);
+			curFuneral.setDeceased(null);
+		}
+		
+		return funerals;
+	}
+
+	public List<Management> getManagementsBySectorManager(EntityManager em, int graveId, int deceasedId){
+		ManagementDAO mDao = new ManagementDAO();
+		
+		List<Management> managements = mDao.getManagementsBySectorManager(em, graveId, deceasedId);
+		
+		for (Management curManagement : managements) {
+			em.detach(curManagement);
+			curManagement.setSector(null);
+			curManagement.setManager(null);
+		}
+		
+		return managements;
+	}
+
+	public Integer insertSector(EntityManager em, Sector sector){
+		
+		em.persist(sector);
+		
+		return sector.getId();
+	}
+
+	public Integer createGrave(EntityManager em, Grave grave, Sector sector) {
+		Sector sectorDB = em.find(Sector.class, sector.getId());
+		
+		grave.setSector(sectorDB);
+		
+		sectorDB.setFullGravesNumber(sectorDB.getFullGravesNumber()+1);
+		
+		
+		em.persist(grave);
+		
+		return grave.getId();
+	}
+
+	public boolean updateGrave(EntityManager em, Grave grave){
+		
+		Grave graveDB = em.find(Grave.class, grave.getId());
+		
+		graveDB.setGraveNumber(grave.getGraveNumber());
+		graveDB.setAllPlacesNumber(grave.getAllPlacesNumber());
+		
+		return true;
+	}
+	
+	public boolean updateSector(EntityManager em, Sector sector){
+		
+		Sector sectorDB = em.find(Sector.class, sector.getId());
+		
+		sectorDB.setAllGravesNumber(sector.getAllGravesNumber());
+		sectorDB.setSectorNumber(sector.getSectorNumber());
+		sectorDB.setSize(sector.getSize());
+		
+		return true;
+	}
+
+	public void removeGrave(EntityManager em, Grave grave){
+		
+		Grave graveDB = em.getReference(Grave.class, grave.getId());
+		
+		em.remove(graveDB);
+	}
+	
+	public void removeSector(EntityManager em, Sector sector){
+		
+		Sector sectorDB = em.getReference(Sector.class, sector.getId());
+		
+		em.remove(sectorDB);
+	}
+	
+	public Integer insertManager(EntityManager em, Manager manager, Sector sector){
+		ManagerDAO oDao = new ManagerDAO();
+		
+		Manager managerDB = oDao.getManagerByStats(em, manager);
+		Management management;
+		
+		if (managerDB==null) {
+			em.persist(manager);
+			management = new Management(sector, manager);
+		} else {
+			management = new Management(sector, managerDB);
+		}
+		
+		em.persist(management);
+		return management.getManager().getId();
+	}
+	
+	public Integer insertOwner(EntityManager em, Owner owner, Grave grave){	
+		OwnerDAO oDao = new OwnerDAO();
+		
+		Owner ownerDB = oDao.getOwnerByStats(em, owner);
+		Rent rent;
+		
+		if (ownerDB==null) {
+			em.persist(owner);
+			rent = new Rent(owner, grave);
+		} else {
+			rent = new Rent(ownerDB, grave);
+		}
+		
+		em.persist(rent);
+		return rent.getOwner().getId();
+	}
+	
+	public void updateManager(EntityManager em, Manager manager){
+		em.find(Manager.class, manager.getId());
+		
+		em.merge(manager);
+	}
+	
+	public void updateOwner(EntityManager em, Owner owner){
+		em.find(Owner.class, owner.getId());
+		
+		em.merge(owner);
+	}
+	
+	public Grave chceckGraveForFuneral(EntityManager em, Integer sectorNumber, Integer graveNumber){
+		GraveDAO gDao = new GraveDAO();
+		
+		Grave grave = gDao.getGraveByNumberSector(em, sectorNumber, graveNumber);
+		if (grave != null){
+			
+			em.detach(grave.getSector());
+			
+			grave.getSector().setGraves(null);
+			grave.getSector().setManagements(null);
+			
+			List<Rent> rents = new ArrayList<Rent>();
+			
+			for (Rent curRent : grave.getRents()) {
+				em.detach(curRent);
+				em.detach(curRent.getOwner());
+				
+				curRent.getOwner().setRents(null);
+				
+				rents.add(curRent);
+			}
+
+			grave.setRents(rents);		
+			
+			if ((grave.getRents()!= null) && (grave.))
+			
+			return grave;
+		} else {
+			
+			return null;
+		}
+		
+		
+	}
+
+}
+
+
+

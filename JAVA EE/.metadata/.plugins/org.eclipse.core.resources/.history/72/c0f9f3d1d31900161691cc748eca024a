@@ -1,0 +1,55 @@
+package executive;
+
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.UserTransaction;
+
+import dao.SectorDAO;
+import model.places.Grave;
+import model.places.Sector;
+
+@Stateless
+@TransactionManagement(TransactionManagementType.BEAN)
+@LocalBean
+public class TransactionExecutiveBean {
+
+	@PersistenceContext
+	private EntityManager em;
+	
+	@Resource
+	private EJBContext context;
+	
+   public boolean createGrave(Grave grave, int sectorNumber){
+	   UserTransaction ut = context.getUserTransaction();
+	   
+	   try {
+		   ut.begin();
+		   SectorDAO sDao = new SectorDAO();
+		   Sector sector;
+			   
+		   sector = sDao.getSectorBySectorNumber(em, sectorNumber);			   
+		   sector.setFullGravesNumber(sector.getFullGravesNumber()+1);
+			   
+		   em.persist(sector);
+		   em.persist(grave);
+		   
+		   ut.commit();
+		   return true;
+	   } catch (Exception e) {
+		   try {
+			   ut.rollback();
+		   } catch (Exception b) {
+			   
+		   }
+		   return false;
+	   }
+	   
+   }
+
+}

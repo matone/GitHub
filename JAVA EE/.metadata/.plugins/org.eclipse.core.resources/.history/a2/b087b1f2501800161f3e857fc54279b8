@@ -1,0 +1,29 @@
+package dao;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.places.Sector;
+
+public class SectorDAO {
+	
+	public List<Sector> getScheme(EntityManager em){
+		
+		TypedQuery<Sector> q = em.createNamedQuery("Sector.findAllWithGraves", Sector.class);
+		
+		List<Sector> sectors = q.getResultList();
+		
+		for (Sector curSector : sectors) {
+			
+			
+			 
+			
+		} 
+		
+		return sectors;
+	}
+
+}

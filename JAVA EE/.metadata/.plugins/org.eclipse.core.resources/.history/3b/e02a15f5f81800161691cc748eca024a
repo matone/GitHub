@@ -1,0 +1,22 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.Rent;
+
+public class RentDAO {
+	
+
+	public List<Rent> getRentByGraveOwner(EntityManager em, int graveId, int ownerId){
+		
+		TypedQuery<Rent> q = em.createNamedQuery("Rent.getRentByGraveId", Rent.class).setParameter("graveId", graveId).setParameter("ownerId", ownerId);
+		
+		List<Rent> rents = q.getResultList();
+		
+		return rents;
+	}
+	
+}

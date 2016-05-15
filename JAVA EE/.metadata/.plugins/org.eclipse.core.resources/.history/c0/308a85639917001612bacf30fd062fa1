@@ -1,0 +1,21 @@
+package testPakaz;
+
+import java.util.List;
+
+import javax.ejb.Remote;
+
+import model.people.Owner;
+import model.places.Grave;
+
+@Remote
+public interface TestBeanRemote {
+	
+	public int vrat(int a);
+	
+	public List<Owner> getAllOwners();
+	
+	public Grave testOwner();
+	
+	public String testString();
+	
+}

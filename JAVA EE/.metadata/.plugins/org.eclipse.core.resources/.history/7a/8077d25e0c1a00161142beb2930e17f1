@@ -1,0 +1,43 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.people.Manager;
+import model.people.Owner;
+
+public class OwnerDAO {
+	
+	public List<Owner> getAllOwners(EntityManager em){
+		
+		TypedQuery<Owner> q = em.createNamedQuery("Owner.findAll", Owner.class);
+		
+		List<Owner> owners = q.getResultList();
+		
+		return owners;
+		
+	}
+	
+	public Owner getOwnerById(EntityManager em, Owner input){
+		
+		TypedQuery<Owner> q = em.createNamedQuery("Owner.getOwnersByStats", Owner.class)
+									.setParameter("firstName", input.getFirstName())
+									.setParameter("lastName", input.getLastName())
+									.setParameter("city", input.getCity())
+									.setParameter("street", input.getStreet())
+									.setParameter("postalCode", input.getPostalCode())
+									.setParameter("phoneNumber", input.getPhoneNumber())
+									.setParameter("email", input.getEmail());
+		
+		List<Owner> owners = q.getResultList();
+		
+		if (owners.size() == 0){
+			return null;
+		} else{
+			return owners.get(0);
+		}
+	}
+	
+}

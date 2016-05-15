@@ -1,0 +1,52 @@
+package testPackaz;
+
+import java.util.Hashtable;
+import java.util.List;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
+import model.people.Owner;
+import testPakaz.TestBeanRemote;
+
+public class MainTest {
+	
+	public static void main(String[] args) {
+		
+		test();		
+		
+	}
+	
+	public static void test(){
+		try {
+			Context context;
+			Object result = null;
+			Hashtable jndiProperties = new Hashtable();
+			jndiProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+			context = new InitialContext(jndiProperties);
+			
+			result = context.lookup("ejb:EJBEar/EJBServer//TestBean!testPakaz.TestBeanRemote");
+			
+			TestBeanRemote remote = (TestBeanRemote) result;
+			
+			System.out.println(remote.vrat(12));
+			
+			List<Owner> owners = remote.getAllOwners();
+			
+			System.out.println(owners.size());
+			
+			for (Owner owner : owners) {
+				System.out.println(owner.getFirstName());
+			}
+			
+			System.out.println(remote.testOwner().getFirstName());
+		
+					
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}

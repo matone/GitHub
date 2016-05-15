@@ -1,0 +1,20 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.people.Owner;
+
+public class OwnerDAO {
+	
+	public List<Owner> getAllOwners(EntityManager em){
+		
+		TypedQuery<Owner> q = em.createNamedQuery("Owner.findAlll", Owner.class);
+		List<Owner> owners = q.getResultList();
+		return owners;
+		
+	}
+	
+}
