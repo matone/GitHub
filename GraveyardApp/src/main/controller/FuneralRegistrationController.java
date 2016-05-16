@@ -1,0 +1,337 @@
+package main.controller;
+
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
+import main.MainApp;
+import model.Funeral;
+import model.Rent;
+import model.people.Applicant;
+import model.people.Deceased;
+import model.people.Owner;
+import model.places.Grave;
+import remote.HibFacadeBeanRemote;
+
+public class FuneralRegistrationController {
+	
+	@FXML
+	private GridPane gridPane;
+	@FXML
+	private Label funeralInformationLabel;
+	@FXML
+	private Label funeralRegistrationLabel;
+	@FXML
+	private Label personalInfoLabel;
+	@FXML
+	private Label deceasedInfoLabel;
+	@FXML
+	private Label firstNameLabel;
+	@FXML
+	private Label lastNameLabel;
+	@FXML
+	private Label cityLabel;
+	@FXML
+	private Label streetLabel;
+	@FXML
+	private Label postalCodeLabel;
+	@FXML
+	private Label phoneNumberLabel;
+	@FXML
+	private Label emailLabel;
+	@FXML
+	private Label decFirstNameLabel;
+	@FXML
+	private Label decLastNameLabel;
+	@FXML
+	private Label graveNumberLabel;
+	@FXML
+	private Label funeralDateLabel;
+	@FXML
+	private Label sectorNumberLabel;
+	@FXML
+	private Label graveLabel;
+	@FXML
+	private Label funeralTimeLabel;
+	@FXML
+	private Label ageLabel;
+	@FXML
+	private Label timeLabel;
+	@FXML
+	private TextField firstNameTextField;
+	@FXML
+	private TextField lastNameTextField;
+	@FXML
+	private TextField cityTextField;
+	@FXML
+	private TextField streetTextField;
+	@FXML
+	private TextField postalCodeTextField;
+	@FXML
+	private TextField phoneNumberTextField;
+	@FXML
+	private TextField emailTextField;
+	@FXML
+	private TextField decFirstNameTextField;
+	@FXML
+	private TextField decLastNameTextField;
+	@FXML
+	private TextField graveNumberTextField;
+	@FXML
+	private TextField sectorNumberTextField;
+	@FXML
+	private TextField ageTextField;
+	@FXML
+	private TextField daysTextField;
+	@FXML
+	private TextField monthsTextField;
+	@FXML
+	private TextField yearsTextField;
+	@FXML
+	private ComboBox<String> timeBox;
+	@FXML
+	private Button cancelButton;
+	@FXML
+	private Button okButton;
+	
+	private MainApp mainApp;
+	private Stage dialogStage;
+	private boolean okClicked = false;
+	private boolean initialized = false;
+	private boolean accesAvailable = false;
+	private int years;
+	private int months;
+	private int days;
+	private int hours;
+	private Grave grave;
+	private Owner owner;
+	
+	public FuneralRegistrationController(MainApp mainApp) {
+		this.mainApp = mainApp;
+	}
+	
+	public void resetText(){
+		ResourceBundle resourceBundle = mainApp.getResourceBundle();
+		funeralRegistrationLabel.setText(resourceBundle.getString("funeralRegistrationLabel"));
+		personalInfoLabel.setText(resourceBundle.getString("personalInfoLabel"));
+		deceasedInfoLabel.setText(resourceBundle.getString("deceasedInfoLabel"));
+		firstNameLabel.setText(resourceBundle.getString("firstNameLabel"));
+		lastNameLabel.setText(resourceBundle.getString("lastNameLabel"));
+		cityLabel.setText(resourceBundle.getString("cityLabel"));
+		streetLabel.setText(resourceBundle.getString("streetLabel"));
+		postalCodeLabel.setText(resourceBundle.getString("postalCodeLabel"));
+		phoneNumberLabel.setText(resourceBundle.getString("phoneNumberLabel"));
+		emailLabel.setText(resourceBundle.getString("emailLabel"));
+		decFirstNameLabel.setText(resourceBundle.getString("firstNameLabel"));
+		decLastNameLabel.setText(resourceBundle.getString("lastNameLabel"));
+		graveNumberLabel.setText(resourceBundle.getString("graveNumberLabel"));
+		sectorNumberLabel.setText(resourceBundle.getString("sectorNumberLabel"));
+		funeralDateLabel.setText(resourceBundle.getString("funeralDateLabel"));
+		okButton.setText(resourceBundle.getString("okButton"));
+		cancelButton.setText(resourceBundle.getString("cancelButton"));
+		funeralInformationLabel.setText(resourceBundle.getString("funeralInformationLabel"));
+		graveLabel.setText(resourceBundle.getString("graveLabel"));
+		ageLabel.setText(resourceBundle.getString("age"));
+		timeLabel.setText(resourceBundle.getString("time"));
+		try {
+			exportPDF();
+		} catch (DocumentException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@FXML
+	private void initialize(){
+		timeBox.getItems().addAll("08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00");
+		resetText();
+		setInitialized(true);
+	}
+	
+	@FXML
+	private void handleCancelButton(){
+	}
+	
+	@FXML
+	private void handleOkButton(){
+		if (isInputValid()){
+						
+			Applicant applicant = new Applicant();
+			applicant.setFirstName(firstNameTextField.getText());
+			applicant.setLastName(lastNameTextField.getText());
+			applicant.setCity(cityTextField.getText());
+			applicant.setStreet(streetTextField.getText());
+			applicant.setEmail(emailTextField.getText());
+			applicant.setPhoneNumber(phoneNumberTextField.getText());
+			applicant.setPostalCode(postalCodeTextField.getText());
+			
+			Deceased deceased = new Deceased();
+			deceased.setFirstName(firstNameTextField.getText());
+			deceased.setLastName(lastNameTextField.getText());
+			deceased.setAge(Integer.parseInt(ageTextField.getText()));
+			
+			Funeral funeral = new Funeral();
+			
+			funeral.setIntDateFrom(years, months, days, hours, 0);
+			
+			HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
+			remote.insertFuneral(applicant, grave, funeral, deceased);
+			
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.initOwner(mainApp.getPrimaryStage());
+			alert.setTitle("New Funeral");
+			alert.setHeaderText("New funeral was successfully created.");
+			dialogStage.close();
+			alert.showAndWait();
+		} else{
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.initOwner(mainApp.getPrimaryStage());
+            alert.setTitle("Invalid Fields");
+            alert.setHeaderText("Please fill out all red fields.");
+            alert.setContentText(null);
+            alert.showAndWait();
+		}
+	}
+	
+	public boolean isInputValid() {
+		boolean temp=true;
+		
+		TextField tempTextField;
+		ObservableList<Object> column = FXCollections.observableArrayList();
+		column.addAll(gridPane.getChildren());
+		if (!isDateValid()){
+			yearsTextField.setStyle("-fx-border-color: #FF3333;-fx-border-width: 2");
+			monthsTextField.setStyle("-fx-border-color: #FF3333;-fx-border-width: 2");
+			daysTextField.setStyle("-fx-border-color: #FF3333;-fx-border-width: 2");
+			temp = false;
+		} else{
+			yearsTextField.setStyle("");
+			monthsTextField.setStyle("");
+			daysTextField.setStyle("");
+		}
+		for (Object object : column) {
+			if (object.getClass().equals(TextField.class)){
+				tempTextField = (TextField) object;
+				if (tempTextField.getText().isEmpty()){
+					temp=false;
+					tempTextField.setStyle("-fx-border-color: #FF3333;-fx-border-width: 2");
+				} else{
+					tempTextField.setStyle("");
+				}
+			}
+		}
+		
+		if (temp){
+			try{
+				Integer.parseInt(ageTextField.getText());
+			} catch (NumberFormatException e){
+				ageTextField.setStyle("-fx-border-color: #FF3333;-fx-border-width: 2");
+				e.printStackTrace();
+				temp = false;
+			}
+		}
+		return temp;
+	}
+	
+	public boolean isDateValid() throws NumberFormatException{
+		String temp="Date values must be numerical";
+		try {
+			years = Integer.parseInt(yearsTextField.getText());
+			months = Integer.parseInt(monthsTextField.getText());
+			days = Integer.parseInt(daysTextField.getText());
+			System.out.println(timeBox.getSelectionModel().getSelectedIndex() + 8);
+			hours = timeBox.getSelectionModel().getSelectedIndex() + 8;
+			temp="Please enter the date in dd/mm/yyyy format";
+		} catch (NumberFormatException e) {
+			
+			e.printStackTrace();
+		}
+		
+		if ((days<=31)&&(months<=12)&&(days>0)&&(months>0)){
+			return true;
+		}
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.initOwner(mainApp.getPrimaryStage());
+		alert.setTitle("Invalid Date Format");
+		alert.setHeaderText(temp);
+		alert.setContentText(null);
+		alert.showAndWait();
+		return false;
+	}
+	
+	public void exportPDF()	throws DocumentException, IOException {
+	        Document document = new Document();
+	        PdfWriter.getInstance(document, new FileOutputStream("C:\\MATO\\FIIT\\JAVA EE\\PDF\\pdfko.pdf"));
+	        document.open();
+	        document.add(new Paragraph("Hello World!"));
+	        document.close();
+	}
+	
+	public boolean isInitialized() {
+		return initialized;
+	}
+
+	public void setInitialized(boolean initialized) {
+		this.initialized = initialized;
+	}
+
+	public boolean isAccesAvailable() {
+		return accesAvailable;
+	}
+
+	public void setAccesAvailable(boolean accesAvailable) {
+		this.accesAvailable = accesAvailable;
+	}
+
+	public Stage getDialogStage() {
+		return dialogStage;
+	}
+
+	public void setDialogStage(Stage dialogStage) {
+		this.dialogStage = dialogStage;
+	}
+
+	public boolean isOkClicked() {
+		return okClicked;
+	}
+
+	public void setOkClicked(boolean okClicked) {
+		this.okClicked = okClicked;
+	}
+	
+	public Grave getGrave(){
+		return grave;
+	}
+
+	public void setGrave(Grave grave){
+		this.grave = grave;
+		sectorNumberTextField.setText(Integer.toString(grave.getSector().getSectorNumber()));
+		graveNumberTextField.setText(Integer.toString(grave.getGraveNumber()));
+	}
+
+	public Owner getOwner() {
+		return owner;
+	}
+
+	public void setOwner(Owner owner) {
+		this.owner = owner;
+	}
+}
