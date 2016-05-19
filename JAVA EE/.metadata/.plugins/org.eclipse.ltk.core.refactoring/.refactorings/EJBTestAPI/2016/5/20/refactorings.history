@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename method &apos;remote.HibFacadeBeanRemote.createGrave(...)&apos; to &apos;insertGrave&apos;&#x0D;&#x0A;- Original project: &apos;EJBTestAPI&apos;&#x0D;&#x0A;- Original element: &apos;remote.HibFacadeBeanRemote.createGrave(...)&apos;&#x0D;&#x0A;- Renamed element: &apos;remote.HibFacadeBeanRemote.insertGrave(...)&apos;&#x0D;&#x0A;- Update references to refactored element" delegate="false" deprecate="false" description="Rename method &apos;createGrave&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.method" input="/src&lt;remote{HibFacadeBeanRemote.java[HibFacadeBeanRemote~createGrave~QGrave;~QSector;" name="insertGrave" references="true" stamp="1463584266476" version="1.0"/>
+</session>

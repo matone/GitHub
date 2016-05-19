@@ -1,0 +1,143 @@
+package remote;
+
+import java.util.List;
+
+import javax.ejb.Remote;
+import javax.persistence.EntityManager;
+
+import model.Funeral;
+import model.Management;
+import model.Rent;
+import model.people.Applicant;
+import model.people.Deceased;
+import model.people.Manager;
+import model.people.Owner;
+import model.places.Grave;
+import model.places.Sector;
+
+@Remote
+public interface HibFacadeBeanRemote {
+	
+	/**
+	 * @return
+	 */
+	public List<Sector> getSectorTree();
+	
+	/**
+	 * @param id
+	 * @return
+	 */
+	public Grave getGraveById(int id);
+	
+	/**
+	 * @param sectorNumber
+	 * @param graveNumber
+	 * @return
+	 */
+	public Grave chceckGraveForFuneral(Integer sectorNumber, Integer graveNumber);
+	
+	/**
+	 * @param id
+	 * @return
+	 */
+	public Sector getSectorById(int id);
+	
+	/**
+	 * @param graveId
+	 * @param ownerId
+	 * @return
+	 */
+	public List<Rent> getRentsByGraveOwner(int graveId, int ownerId);
+	
+	/**
+	 * @param graveId
+	 * @param deceasedId
+	 * @return
+	 */
+	public List<Funeral> getFuneralsByGraveDeceased(int graveId, int deceasedId);
+	
+	/**
+	 * @param sectorId
+	 * @param managerId
+	 * @return
+	 */
+	public List<Management> getManagementsBySectorManager(int sectorId, int managerId);
+	
+	/**
+	 * @param sector
+	 * @return
+	 */
+	public Integer insertSector(Sector sector);
+	
+	/**
+	 * @param owner
+	 * @param grave
+	 * @return
+	 */
+	public Integer insertOwner(Owner owner, Grave grave);
+	
+	/**
+	 * @param manager
+	 * @param sector
+	 * @return
+	 */
+	public Integer insertManager(Manager manager, Sector sector);
+	
+	/**
+	 * @param owner
+	 * @return
+	 */
+	public boolean updateOwner(Owner owner);
+	
+	/**
+	 * @param manager
+	 * @return
+	 */
+	public boolean updateManager(Manager manager);
+	
+	/**
+	 * @param grave wich is about to be 
+	 * @param sector
+	 * @return
+	 */
+	public Integer insertGrave(Grave grave, Sector sector);
+	
+	/**
+	 * Updates information about sector in database
+	 * @param sector which is about to be updated in database
+	 * @return Returns true when the update is successful else returns false
+	 */
+	public boolean updateSector(Sector sector);
+	
+	/**
+	 * Updates information about grave in database
+	 * @param grave which is about to be updated in database
+	 * @return Returns true when the update is successful else returns false
+	 */
+	public boolean updateGrave(Grave grave);
+	
+	/**
+	 * Removes sector from database.
+	 * @param sector which is about to be removed from database
+	 * @return Returns true when the removal is successful else returns false
+	 */
+	public boolean removeSector(Sector sector);
+	
+	/**
+	 * Removes grave from database.
+	 * @param grave which is about to be removed from database
+	 * @return Returns true when the removal is successful else returns false
+	 */
+	public boolean removeGrave(Grave grave);
+	
+	/**
+	 * Function for inserting new funeral to database.
+	 * @param applicant who applies for the funeral
+	 * @param grave where will be the funeral executed
+	 * @param funeral information about funeral
+	 * @param deceased deceased who is about to be buried
+	 * @return return funeral persisted in database or null when the transaction failed
+	 */
+	public Funeral insertFuneral(Applicant applicant, Grave grave, Funeral funeral, Deceased deceased);
+	
+}

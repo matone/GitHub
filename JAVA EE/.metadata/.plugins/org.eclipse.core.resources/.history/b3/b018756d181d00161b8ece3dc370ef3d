@@ -1,0 +1,147 @@
+package remote;
+
+import java.util.List;
+
+import javax.ejb.Remote;
+import javax.persistence.EntityManager;
+
+import model.Funeral;
+import model.Management;
+import model.Rent;
+import model.people.Applicant;
+import model.people.Deceased;
+import model.people.Manager;
+import model.people.Owner;
+import model.places.Grave;
+import model.places.Sector;
+
+@Remote
+public interface HibFacadeBeanRemote {
+	
+	/**
+	 * @return
+	 */
+	public List<Sector> getSectorTree();
+	
+	/**
+	 * @param id
+	 * @return
+	 */
+	public Grave getGraveById(int id);
+	
+	/**
+	 * @param sectorNumber
+	 * @param graveNumber
+	 * @return
+	 */
+	public Grave chceckGraveForFuneral(Integer sectorNumber, Integer graveNumber);
+	
+	/**
+	 * @param id
+	 * @return
+	 */
+	public Sector getSectorById(int id);
+	
+	/**
+	 * @param graveId
+	 * @param ownerId
+	 * @return
+	 */
+	public List<Rent> getRentsByGraveOwner(int graveId, int ownerId);
+	
+	/**
+	 * @param graveId
+	 * @param deceasedId
+	 * @return
+	 */
+	public List<Funeral> getFuneralsByGraveDeceased(int graveId, int deceasedId);
+	
+	/**
+	 * @param sectorId
+	 * @param managerId
+	 * @return
+	 */
+	public List<Management> getManagementsBySectorManager(int sectorId, int managerId);
+	
+	/**
+	 * @param sector
+	 * @return Returns auto-generated ID of the inserted sector, or null if the transaction failed
+	 */
+	public Integer insertSector(Sector sector);
+	
+	/**
+	 * @param owner
+	 * @param grave
+	 * @return Returns auto-generated ID of the inserted owner, or null if the transaction failed
+	 */
+	public Integer insertOwner(Owner owner, Grave grave);
+	
+	/**
+	 * Create management and inserts new manager to database
+	 * @param manager which is about to be inserted to database
+	 * @param sector which is managed by the manager
+	 * @return Returns auto-generated ID of the inserted manager, or null if the transaction failed
+	 */
+	public Integer insertManager(Manager manager, Sector sector);
+	
+	/**
+	 * Updates information about owner in database
+	 * @param owner which is about to be updated in database
+	 * @return Returns true when the update is successful else returns false
+	 */
+	public boolean updateOwner(Owner owner);
+	
+	/**
+	 * Updates information about manager in database
+	 * @param manager which is about to be updated in database
+	 * @return Returns true, or false if the transaction failed
+	 */
+	public boolean updateManager(Manager manager);
+	
+	/**
+	 * Create and inserts new grave to database
+	 * @param grave which is about to be inserted to database
+	 * @param sector where grave belong. 
+	 * @return Returns auto-generated ID of the inserted grave, or null if the transaction failed
+	 */
+	public Integer insertGrave(Grave grave, Sector sector);
+	
+	/**
+	 * Updates information about sector in database
+	 * @param sector which is about to be updated in database
+	 * @return Returns true, or false if the transaction failed
+	 */
+	public boolean updateSector(Sector sector);
+	
+	/**
+	 * Updates information about grave in database
+	 * @param grave which is about to be updated in database
+	 * @return Returns true, or false if the transaction failed
+	 */
+	public boolean updateGrave(Grave grave);
+	
+	/**
+	 * Removes sector from database.
+	 * @param sector which is about to be removed from database
+	 * @return Returns true, or false if the transaction failed
+	 */
+	public boolean removeSector(Sector sector);
+	
+	/**
+	 * Removes grave from database.
+	 * @param grave which is about to be removed from database
+	 * @return Returns true, or false if the transaction failed
+	 */
+	public boolean removeGrave(Grave grave);
+	
+	/**
+	 * Create and inserts new funeral to database.
+	 * @param applicant who applies for the funeral
+	 * @param grave where will be the funeral executed
+	 * @param funeral information about funeral
+	 * @param deceased deceased who is about to be buried
+	 * @return return funeral persisted in database or null when the transaction failed
+	 */
+	public Funeral insertFuneral(Applicant applicant, Grave grave, Funeral funeral, Deceased deceased);
+	
+}

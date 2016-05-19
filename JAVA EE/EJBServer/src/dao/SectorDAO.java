@@ -6,12 +6,17 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import model.people.Owner;
 import model.places.Grave;
 import model.places.Sector;
 
 public class SectorDAO {
 	
+	
+	/**
+	 * Find all sectors in database
+	 * @param em The EntityManager used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities
+	 * @return Returns list of all sectors
+	 */
 	public List<Sector> getScheme(EntityManager em){
 		
 		TypedQuery<Sector> q = em.createNamedQuery("Sector.findAllWithGraves", Sector.class);

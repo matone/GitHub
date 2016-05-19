@@ -10,6 +10,12 @@ import model.people.Manager;
 
 public class ManagerDAO {
 
+	/**
+	 * Finds manager by given attributes
+	 * @param em The EntityManager used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities.
+	 * @param input manager, with attributes to find
+	 * @return Returns manager with wanted attributes
+	 */
 	public Manager getManagerByStats(EntityManager em, Manager input){
 		
 		TypedQuery<Manager> q = em.createNamedQuery("Manager.getManagerByStats", Manager.class)

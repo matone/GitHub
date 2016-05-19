@@ -1,0 +1,33 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.people.Deceased;
+
+public class DeceasedDAO {
+	
+	/**
+	 * @param em The EntityManager is used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities.
+	 * @param input applicant, with attributes to find
+	 * @return Returns applicant with wanted attributes
+	 */
+	public Deceased getDeceasedByStats(EntityManager em, Deceased input){
+		
+		TypedQuery<Deceased> q = em.createNamedQuery("Deceased.getDeceasedByStats", Deceased.class)
+									.setParameter("firstName", input.getFirstName())
+									.setParameter("lastName", input.getLastName())
+									.setParameter("age", input.getAge());
+		
+		List<Deceased> deceaseds = q.getResultList();
+		
+		if (deceaseds.size() == 0){
+			return null;
+		} else{
+			return deceaseds.get(0);
+		}
+	}
+
+}

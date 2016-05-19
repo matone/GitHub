@@ -9,6 +9,13 @@ import model.Management;
 
 public class ManagementDAO {
 	
+	/**
+	 * Finds all managements with according sector and manager ID
+	 * @param em The EntityManager used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities
+	 * @param sectorId ID of sector of the management
+	 * @param managerId ID of manager of the management
+	 * @return Returns Returns list of managements with specific sector and 
+	 */
 	public List<Management> getManagementsBySectorManager(EntityManager em, int sectorId, int managerId){
 		
 		TypedQuery<Management> q = em.createNamedQuery("Management.getManagementsBySectorIdManagerId", Management.class).setParameter("sectorId", sectorId).setParameter("managerId", managerId);

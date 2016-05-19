@@ -10,12 +10,16 @@ import remote.HibFacadeBeanRemote;
 
 public class FacadeRemoteUtil {
 	
+	/**
+	 * Creates connection to facade through remote class
+	 * @return HibFacadeBeanRemote for communication with the server
+	 */
 	public HibFacadeBeanRemote getHibFacadeBeanRemote(){
 		
 		try {
 			Context context;
 			Object result = null;
-			Hashtable jndiProperties = new Hashtable();
+			Hashtable<String, String> jndiProperties = new Hashtable<String, String>();
 			jndiProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 			context = new InitialContext(jndiProperties);			
 			result = context.lookup("ejb:EJBEar/EJBServer//HibFacadeBean!remote.HibFacadeBeanRemote");

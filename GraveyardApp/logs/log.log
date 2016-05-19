@@ -1,0 +1,8 @@
+[Št máj 19 11:17:38 CEST 2016] INFO: JBoss EJB Client version 1.0.2.Final 
+[Št máj 19 11:17:38 CEST 2016] INFO: XNIO Version 3.0.3.GA 
+[Št máj 19 11:17:38 CEST 2016] INFO: XNIO NIO Implementation Version 3.0.3.GA 
+[Št máj 19 11:17:38 CEST 2016] INFO: JBoss Remoting version 3.2.2.GA 
+[Št máj 19 11:17:38 CEST 2016] INFO: Received server version 1 and marshalling strategies [river] 
+[Št máj 19 11:17:38 CEST 2016] INFO: Successful version handshake completed for receiver context EJBReceiverContext{clientContext=org.jboss.ejb.client.EJBClientContext@317def4d, receiver=Remoting connection EJB receiver [connection=Remoting connection <2409d7a6>,channel=jboss.ejb,nodename=adam-pc]} on channel Channel ID cacaf16e (outbound) of Remoting connection 6c4dc932 to localhost/127.0.0.1:4447 
+[Št máj 19 11:17:38 CEST 2016] WARN: Unsupported message received with header 0xffffffff 
+[Št máj 19 11:17:52 CEST 2016] INFO: FuneralRegistrationontroller initialized WP 

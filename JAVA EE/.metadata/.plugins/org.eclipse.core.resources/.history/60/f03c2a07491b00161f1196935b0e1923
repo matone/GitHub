@@ -1,0 +1,27 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.people.Deceased;
+
+public class DeceasedDAO {
+	
+	public Deceased getDeceasedByStats(EntityManager em, Deceased input){
+		
+		TypedQuery<Deceased> q = em.createNamedQuery("Deceased.getDeceasedByStats", Deceased.class)
+									.setParameter("firstName", input.getFirstName())
+									.setParameter("lastName", input.getLastName());
+		
+		List<Deceased> deceaseds = q.getResultList();
+		
+		if (deceaseds.size() == 0){
+			return null;
+		} else{
+			return deceaseds.get(0);
+		}
+	}
+
+}

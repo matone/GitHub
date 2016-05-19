@@ -16,7 +16,6 @@ import main.controller.FuneralRegistrationController;
 import main.controller.NewPersonDialogController;
 import main.controller.SchemeOverviewController;
 import main.controller.SchemeOverviewDialogController;
-import model.people.Owner;
 import model.people.Person;
 import model.places.Grave;
 import util.FacadeRemoteUtil;
@@ -32,6 +31,9 @@ public class MainApp extends Application {
     private ResourceBundle resourceBundle;
     private SchemeOverviewController schemeOverviewController = new SchemeOverviewController(this);
 	private FuneralRegistrationController funeralRegistrationController = new FuneralRegistrationController(this);
+	private Locale current; 
+	private Locale sk = new Locale("SK");
+	private Locale en = Locale.ENGLISH;
     
     public MainApp(){
     }
@@ -66,9 +68,11 @@ public class MainApp extends Application {
 		String language = Locale.getDefault().getLanguage();
 		
 		if (language == "SK") {
-			setResourceBundle(ResourceBundle.getBundle("Text_sk", Locale.getDefault()));
+			resourceBundle = ResourceBundle.getBundle("Text_sk", sk);
+			setCurrent(sk);
 		} else {
-			setResourceBundle(ResourceBundle.getBundle("Text", Locale.getDefault()));
+			resourceBundle = ResourceBundle.getBundle("Text", en);
+			setCurrent(en);
 		}
 	}
 	
@@ -159,13 +163,16 @@ public class MainApp extends Application {
 		}
 	}
 	
-	public void changeLanguage(){
-		if (getResourceBundle() == ResourceBundle.getBundle("Text_sk",Locale.FRENCH)){
-			setResourceBundle(ResourceBundle.getBundle("Text",Locale.FRENCH));
+	public void changeLanguage() {
+		if (resourceBundle == ResourceBundle.getBundle("Text_sk", sk)){
+			resourceBundle = ResourceBundle.getBundle("Text", en);
+			setCurrent(en);
 		} else{
-			setResourceBundle(ResourceBundle.getBundle("Text_sk",Locale.FRENCH));
+			resourceBundle = ResourceBundle.getBundle("Text_sk", sk);
+			setCurrent(sk);
 		}
-		schemeOverviewController.resetText();
+		
+		schemeOverviewController.setText();
 	}
 	
 	public static void main(String[] args) {
@@ -190,5 +197,13 @@ public class MainApp extends Application {
 
 	public void setFacadeRemoteUtil(FacadeRemoteUtil facadeRemoteUtil) {
 		this.facadeRemoteUtil = facadeRemoteUtil;
+	}
+
+	public Locale getCurrent() {
+		return current;
+	}
+
+	public void setCurrent(Locale current) {
+		this.current = current;
 	}
 }

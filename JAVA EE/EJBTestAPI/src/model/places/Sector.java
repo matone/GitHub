@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -61,8 +62,7 @@ public class Sector implements Serializable{
 	}	
 
     @Id
-    @SequenceGenerator( name = "sectorSeq", sequenceName = "SECTOR_SEQ", allocationSize = 1, initialValue = 1 )
-    @GeneratedValue( strategy = GenerationType.SEQUENCE, generator = "sectorSeq" )
+    @GeneratedValue(strategy = GenerationType.AUTO)
 	public Integer getId() {
 		return id;
 	}
@@ -71,7 +71,7 @@ public class Sector implements Serializable{
 		this.id = id;
 	}
 	
-	@OneToMany (mappedBy = "sector")
+	@OneToMany (mappedBy = "sector", cascade=CascadeType.REMOVE)
 	public List<Grave> getGraves() {
 		return graves;
 	}
@@ -115,7 +115,7 @@ public class Sector implements Serializable{
 		this.sectorNumber = sectorNumber;
 	}
 
-	@OneToMany (mappedBy = "sector")
+	@OneToMany (mappedBy = "sector", cascade=CascadeType.REMOVE)
 	public List<Management> getManagements() {
 		return managements;
 	}

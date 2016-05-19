@@ -8,4 +8,5 @@
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="main.MainApp"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="GraveyardApp"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Djava.util.logging.config.file=etc/logging.properties"/>
 </launchConfiguration>

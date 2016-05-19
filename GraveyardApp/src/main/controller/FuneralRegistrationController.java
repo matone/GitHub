@@ -2,30 +2,27 @@ package main.controller;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
+import java.text.SimpleDateFormat;
 import java.util.ResourceBundle;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
+import org.jboss.logging.Logger;
 
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfStamper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import main.MainApp;
 import model.Funeral;
-import model.Rent;
 import model.people.Applicant;
 import model.people.Deceased;
 import model.people.Owner;
@@ -116,14 +113,14 @@ public class FuneralRegistrationController {
 	private MainApp mainApp;
 	private Stage dialogStage;
 	private boolean okClicked = false;
-	private boolean initialized = false;
-	private boolean accesAvailable = false;
 	private int years;
 	private int months;
 	private int days;
 	private int hours;
 	private Grave grave;
 	private Owner owner;
+	
+	private static final Logger LOGGER = Logger.getLogger(FuneralRegistrationController.class.getName());
 	
 	public FuneralRegistrationController(MainApp mainApp) {
 		this.mainApp = mainApp;
@@ -152,26 +149,27 @@ public class FuneralRegistrationController {
 		graveLabel.setText(resourceBundle.getString("graveLabel"));
 		ageLabel.setText(resourceBundle.getString("age"));
 		timeLabel.setText(resourceBundle.getString("time"));
-		try {
-			exportPDF();
-		} catch (DocumentException | IOException e) {
-			e.printStackTrace();
-		}
+		
 	}
 
 	@FXML
 	private void initialize(){
 		timeBox.getItems().addAll("08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00");
+		timeBox.getSelectionModel().select("08:00");
+		graveNumberTextField.setDisable(true);
+		sectorNumberTextField.setDisable(true);
 		resetText();
-		setInitialized(true);
+		LOGGER.info("FuneralRegistrationontroller initialized WP");
 	}
 	
 	@FXML
 	private void handleCancelButton(){
+		dialogStage.close();
 	}
 	
 	@FXML
 	private void handleOkButton(){
+		
 		if (isInputValid()){
 						
 			Applicant applicant = new Applicant();
@@ -193,25 +191,38 @@ public class FuneralRegistrationController {
 			funeral.setIntDateFrom(years, months, days, hours, 0);
 			
 			HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-			remote.insertFuneral(applicant, grave, funeral, deceased);
+			
+			funeral = remote.insertFuneral(applicant, grave, funeral, deceased);
+			
+			String msg = "New funeral was not created.";
+			
+			if (funeral != null) {
+				msg = "New funeral was successfully created.";
+				try {
+					exportPDF(funeral);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				grave.setFullPlacesNumber(grave.getFullPlacesNumber() + 1);
+			}
 			
 			Alert alert = new Alert(AlertType.INFORMATION);
 			alert.initOwner(mainApp.getPrimaryStage());
 			alert.setTitle("New Funeral");
-			alert.setHeaderText("New funeral was successfully created.");
+			alert.setHeaderText(msg);
 			dialogStage.close();
 			alert.showAndWait();
-		} else{
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.initOwner(mainApp.getPrimaryStage());
-            alert.setTitle("Invalid Fields");
-            alert.setHeaderText("Please fill out all red fields.");
-            alert.setContentText(null);
-            alert.showAndWait();
+			return;
 		}
+		Alert alert = new Alert(AlertType.ERROR);
+		alert.initOwner(mainApp.getPrimaryStage());
+		alert.setTitle("Invalid Fields");
+		alert.setHeaderText("Please fill out all red fields.");
+		alert.setContentText(null);
+		alert.showAndWait();
 	}
 	
-	public boolean isInputValid() {
+	private boolean isInputValid() {
 		boolean temp=true;
 		
 		TextField tempTextField;
@@ -251,7 +262,7 @@ public class FuneralRegistrationController {
 		return temp;
 	}
 	
-	public boolean isDateValid() throws NumberFormatException{
+	private boolean isDateValid() throws NumberFormatException{
 		String temp="Date values must be numerical";
 		try {
 			years = Integer.parseInt(yearsTextField.getText());
@@ -277,30 +288,51 @@ public class FuneralRegistrationController {
 		return false;
 	}
 	
-	public void exportPDF()	throws DocumentException, IOException {
-	        Document document = new Document();
-	        PdfWriter.getInstance(document, new FileOutputStream("C:\\MATO\\FIIT\\JAVA EE\\PDF\\pdfko.pdf"));
-	        document.open();
-	        document.add(new Paragraph("Hello World!"));
-	        document.close();
+	/**
+	 * Fills PDF template form with information about funeral and saves it into specific folder
+	 * @param funeral of whose information are exported to PDF
+	 * @throws DocumentException
+	 * @throws IOException
+	 */
+	public void exportPDF(Funeral funeral)	throws IOException {
+	        
+	        String strdate = null;
+
+	        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+	        
+	        strdate = sdf.format(funeral.getDateFrom().getTime());
+	        
+	        PdfReader reader = new PdfReader("C:\\MATO\\FIIT\\FuneralApplication.pdf", "123".getBytes());
+	        
+	        String fileName = "C:\\MATO\\FIIT\\JAVA EE\\PDF\\Registration" + funeral.getId() + ".pdf";
+	        
+	        
+	        try {
+	        	PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(fileName));
+	        	
+				stamper.getAcroFields().setField("applicantFirstName", firstNameTextField.getText());
+				stamper.getAcroFields().setField("applicantLastName", lastNameTextField.getText());
+				stamper.getAcroFields().setField("applicantCity", cityTextField.getText());
+				stamper.getAcroFields().setField("applicantStreet", streetTextField.getText());
+				stamper.getAcroFields().setField("applicantPostalCode", postalCodeTextField.getText());
+				stamper.getAcroFields().setField("applicantPhoneNumber", phoneNumberTextField.getText());
+				stamper.getAcroFields().setField("applicantEmail", emailTextField.getText());
+				stamper.getAcroFields().setField("deceasedFirstName", decFirstNameTextField.getText());
+				stamper.getAcroFields().setField("deceasedLastName", decLastNameTextField.getText());
+				stamper.getAcroFields().setField("deceasedAge", ageTextField.getText());
+				stamper.getAcroFields().setField("graveNumber", graveNumberTextField.getText());
+				stamper.getAcroFields().setField("sectorNumber", sectorNumberTextField.getText());
+				stamper.getAcroFields().setField("date", strdate);
+				
+				stamper.close();
+			} catch (DocumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				reader.close();
+			}
 	}
 	
-	public boolean isInitialized() {
-		return initialized;
-	}
-
-	public void setInitialized(boolean initialized) {
-		this.initialized = initialized;
-	}
-
-	public boolean isAccesAvailable() {
-		return accesAvailable;
-	}
-
-	public void setAccesAvailable(boolean accesAvailable) {
-		this.accesAvailable = accesAvailable;
-	}
-
 	public Stage getDialogStage() {
 		return dialogStage;
 	}

@@ -3,8 +3,6 @@ package remote;
 import java.util.List;
 
 import javax.ejb.Remote;
-import javax.persistence.EntityManager;
-
 import model.Funeral;
 import model.Management;
 import model.Rent;
@@ -18,40 +16,131 @@ import model.places.Sector;
 @Remote
 public interface HibFacadeBeanRemote {
 	
+	/**
+	 * Finds all sectors with all their graves 
+	 * @return Returns list of all sectors with all belonging graves
+	 */
 	public List<Sector> getSectorTree();
 	
+	/**
+	 * Finds grave by its ID
+	 * @param id ID of grave
+	 * @return Returns grave with the specified ID
+	 */
 	public Grave getGraveById(int id);
 	
-	public Grave chceckGraveForFuneral(Integer sectorNumber, Integer graveNumber);
-	
+	/**
+	 * Finds sector by its ID
+	 * @param id ID of sector
+	 * @return Returns sector with the specified ID
+	 */
 	public Sector getSectorById(int id);
 	
+	/**
+	 * Finds all rents between grave and owner
+	 * @param graveId ID of the grave
+	 * @param ownerId ID of the owner
+	 * @return Returns list of all rents that link grave and owner of specific ID
+	 */
 	public List<Rent> getRentsByGraveOwner(int graveId, int ownerId);
 	
+	/**
+	 * Finds all funerals between grave and deceased
+	 * @param graveId ID of the grave
+	 * @param deceasedId ID of the deceased
+	 * @return Returns list of all funerals that link grave and deceased of specific ID
+	 */
 	public List<Funeral> getFuneralsByGraveDeceased(int graveId, int deceasedId);
 	
+	/**
+	 * Finds all managements between sector and manager
+	 * @param sectorId ID of the sector
+	 * @param managerId ID of the manager
+	 * @return Returns list of all managements that link sector and manager of specific ID
+	 */
 	public List<Management> getManagementsBySectorManager(int sectorId, int managerId);
 	
+	/**
+	 * Create and inserts new sector into database
+	 * @param sector which is about to be inserted into database
+	 * @return Returns auto-generated ID of the inserted sector, or null if the transaction failed
+	 */
 	public Integer insertSector(Sector sector);
 	
+	/**
+	 * Create and inserts new rent and new owner into database
+	 * @param owner which is about to be inserted into database
+	 * @param grave which is about to be rent by owner
+	 * @return Returns auto-generated ID of the inserted owner, or null if the transaction failed
+	 */
 	public Integer insertOwner(Owner owner, Grave grave);
 	
+	/**
+	 * Create and inserts new management and new manager into database
+	 * @param manager which is about to be inserted into database
+	 * @param sector which is managed by the manager
+	 * @return Returns auto-generated ID of the inserted manager, or null if the transaction failed
+	 */
 	public Integer insertManager(Manager manager, Sector sector);
 	
-	public void updateOwner(Owner owner);
+	/**
+	 * Updates information about owner into database
+	 * @param owner which is about to be updated into database
+	 * @return Returns true when the update is successful else returns false
+	 */
+	public boolean updateOwner(Owner owner);
 	
-	public void updateManager(Manager manager);
+	/**
+	 * Updates information about manager into database
+	 * @param manager which is about to be updated into database
+	 * @return Returns true, or false if the transaction failed
+	 */
+	public boolean updateManager(Manager manager);
 	
-	public Integer createGrave(Grave grave, Sector sector);
+	/**
+	 * Create and inserts new grave into database
+	 * @param grave which is about to be inserted into database
+	 * @param sector where grave belong. 
+	 * @return Returns auto-generated ID of the inserted grave, or null if the transaction failed
+	 */
+	public Integer insertGrave(Grave grave, Sector sector);
 	
+	/**
+	 * Updates information about sector into database
+	 * @param sector which is about to be updated into database
+	 * @return Returns true, or false if the transaction failed
+	 */
 	public boolean updateSector(Sector sector);
 	
+	/**
+	 * Updates information about grave into database
+	 * @param grave which is about to be updated into database
+	 * @return Returns true, or false if the transaction failed
+	 */
 	public boolean updateGrave(Grave grave);
 	
-	public void removeSector(Sector sector);
+	/**
+	 * Removes sector from database.
+	 * @param sector which is about to be removed from database
+	 * @return Returns true, or false if the transaction failed
+	 */
+	public boolean removeSector(Sector sector);
 	
-	public void removeGrave(Grave grave);
+	/**
+	 * Removes grave from database.
+	 * @param grave which is about to be removed from database
+	 * @return Returns true, or false if the transaction failed
+	 */
+	public boolean removeGrave(Grave grave);
 	
-	public void insertFuneral(Applicant applicant, Grave grave, Funeral funeral, Deceased deceased);
+	/**
+	 * Create and inserts new funeral into database.
+	 * @param applicant who applies for the funeral
+	 * @param grave where will be the funeral executed
+	 * @param funeral information about funeral
+	 * @param deceased deceased who is about to be buried
+	 * @return return funeral persisted in database or null when the transaction failed
+	 */
+	public Funeral insertFuneral(Applicant applicant, Grave grave, Funeral funeral, Deceased deceased);
 	
 }

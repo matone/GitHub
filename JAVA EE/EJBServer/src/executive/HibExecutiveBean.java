@@ -1,10 +1,12 @@
 package executive;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 
 import dao.ApplicantDAO;
@@ -29,7 +31,8 @@ import model.places.Sector;
 @Stateless
 public class HibExecutiveBean {
 	
-	public Grave getGraveById(EntityManager em, int id){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Grave getGraveById(EntityManager em, int id) throws PersistenceException {
 		
 		GraveDAO gDao = new GraveDAO();
 		
@@ -65,7 +68,8 @@ public class HibExecutiveBean {
 		return grave;
 	}
 	
-	public Sector getSectorById(EntityManager em, int id){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Sector getSectorById(EntityManager em, int id) throws PersistenceException {
 		SectorDAO sDao = new SectorDAO();
 		
 		Sector sector = sDao.getSectorById(em, id);
@@ -86,12 +90,12 @@ public class HibExecutiveBean {
 		return sector;		
 	}
 	
-	public List<Sector> getSectorTree(EntityManager em){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public List<Sector> getSectorTree(EntityManager em) throws PersistenceException {
 		
 		SectorDAO sDao = new SectorDAO();
 		
 		List<Sector> sectors = sDao.getScheme(em);
-		
 		
 		for (Sector curSector : sectors) {
 			List<Grave> graves = new ArrayList<Grave>();
@@ -105,11 +109,11 @@ public class HibExecutiveBean {
 			curSector.setGraves(graves);
 			em.detach(curSector);
 		}
-		
 		return sectors;
 	}
 
-	public List<Rent> getRentsByGraveOwner(EntityManager em, int graveId, int ownerId){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public List<Rent> getRentsByGraveOwner(EntityManager em, int graveId, int ownerId) throws PersistenceException {
 
 		RentDAO rDao = new RentDAO();
 		
@@ -124,7 +128,8 @@ public class HibExecutiveBean {
 		return rents;
 	}
 	
-	public List<Funeral> getFuneralsByGraveDeceased(EntityManager em, int graveId, int deceasedId){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public List<Funeral> getFuneralsByGraveDeceased(EntityManager em, int graveId, int deceasedId) throws PersistenceException {
 		FuneralDAO fDao = new FuneralDAO();
 		
 		List<Funeral> funerals = fDao.getFuneralsByGraveDeceased(em, graveId, deceasedId);
@@ -139,7 +144,8 @@ public class HibExecutiveBean {
 		return funerals;
 	}
 
-	public List<Management> getManagementsBySectorManager(EntityManager em, int graveId, int deceasedId){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public List<Management> getManagementsBySectorManager(EntityManager em, int graveId, int deceasedId) throws PersistenceException {
 		ManagementDAO mDao = new ManagementDAO();
 		
 		List<Management> managements = mDao.getManagementsBySectorManager(em, graveId, deceasedId);
@@ -153,14 +159,15 @@ public class HibExecutiveBean {
 		return managements;
 	}
 
-	public Integer insertSector(EntityManager em, Sector sector){
+	public Integer insertSector(EntityManager em, Sector sector) throws PersistenceException {
 		
 		em.persist(sector);
 		
 		return sector.getId();
 	}
 
-	public Integer createGrave(EntityManager em, Grave grave, Sector sector) {
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Integer createGrave(EntityManager em, Grave grave, Sector sector) throws PersistenceException {
 		Sector sectorDB = em.find(Sector.class, sector.getId());
 		
 		grave.setSector(sectorDB);
@@ -173,43 +180,52 @@ public class HibExecutiveBean {
 		return grave.getId();
 	}
 
-	public boolean updateGrave(EntityManager em, Grave grave){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void updateGrave(EntityManager em, Grave grave) throws PersistenceException {
 		
 		Grave graveDB = em.find(Grave.class, grave.getId());
 		
 		graveDB.setGraveNumber(grave.getGraveNumber());
 		graveDB.setAllPlacesNumber(grave.getAllPlacesNumber());
-		
-		return true;
 	}
 	
-	public boolean updateSector(EntityManager em, Sector sector){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void updateSector(EntityManager em, Sector sector) throws PersistenceException {
 		
 		Sector sectorDB = em.find(Sector.class, sector.getId());
 		
 		sectorDB.setAllGravesNumber(sector.getAllGravesNumber());
 		sectorDB.setSectorNumber(sector.getSectorNumber());
 		sectorDB.setSize(sector.getSize());
-		
-		return true;
 	}
 
-	public void removeGrave(EntityManager em, Grave grave){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void removeGrave(EntityManager em, Grave grave) throws PersistenceException {
 		
 		Grave graveDB = em.getReference(Grave.class, grave.getId());
 		
 		em.remove(graveDB);
 	}
 	
-	public void removeSector(EntityManager em, Sector sector){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void removeSector(EntityManager em, Sector sector) throws PersistenceException {
 		
 		Sector sectorDB = em.getReference(Sector.class, sector.getId());
 		
 		em.remove(sectorDB);
 	}
 	
-	public Integer insertManager(EntityManager em, Manager manager, Sector sector){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Integer insertManager(EntityManager em, Manager manager, Sector sector) throws PersistenceException {
 		ManagerDAO oDao = new ManagerDAO();
+		
+		Sector sectorDB = em.find(Sector.class, sector.getId());
+		
+		for (Management curManagement : sectorDB.getManagements()) {
+			if (curManagement.getDateTo() == null) {
+				curManagement.setDateTo(Calendar.getInstance());
+			}
+		}
 		
 		Manager managerDB = oDao.getManagerByStats(em, manager);
 		Management management;
@@ -225,10 +241,20 @@ public class HibExecutiveBean {
 		return management.getManager().getId();
 	}
 	
-	public Integer insertOwner(EntityManager em, Owner owner, Grave grave){	
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Integer insertOwner(EntityManager em, Owner owner, Grave grave) throws PersistenceException {	
 		OwnerDAO oDao = new OwnerDAO();
 		
+		Grave graveDB = em.find(Grave.class, grave.getId());
+		
+		for (Rent curRent : graveDB.getRents()) {
+			if (curRent.getDateTo() == null) {
+				curRent.setDateTo(Calendar.getInstance());
+			}
+		}
+		
 		Owner ownerDB = oDao.getOwnerByStats(em, owner);
+		
 		Rent rent;
 		
 		if (ownerDB==null) {
@@ -238,23 +264,27 @@ public class HibExecutiveBean {
 			rent = new Rent(ownerDB, grave);
 		}
 		
+		
 		em.persist(rent);
 		return rent.getOwner().getId();
 	}
 	
-	public void updateManager(EntityManager em, Manager manager){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void updateManager(EntityManager em, Manager manager) throws PersistenceException {
 		em.find(Manager.class, manager.getId());
 		
 		em.merge(manager);
 	}
 	
-	public void updateOwner(EntityManager em, Owner owner){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void updateOwner(EntityManager em, Owner owner) throws PersistenceException {
 		em.find(Owner.class, owner.getId());
 		
 		em.merge(owner);
 	}
 	
-	public Grave chceckGraveForFuneral(EntityManager em, Integer sectorNumber, Integer graveNumber){
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Grave chceckGraveForFuneral(EntityManager em, Integer sectorNumber, Integer graveNumber) throws PersistenceException {
 		GraveDAO gDao = new GraveDAO();
 		
 		Grave grave = gDao.getGraveByNumberSector(em, sectorNumber, graveNumber);
@@ -288,7 +318,8 @@ public class HibExecutiveBean {
 		
 	}
 	
-	public Applicant getApplicantByStats(EntityManager em, Applicant applicant) {
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Applicant getApplicantByStats(EntityManager em, Applicant applicant) throws PersistenceException {
 		ApplicantDAO aDao = new ApplicantDAO();
 		
 		Applicant applicantDB = aDao.getApplicantByStats(em, applicant);
@@ -303,7 +334,8 @@ public class HibExecutiveBean {
 		return applicantDB;
 	}
 	
-	public void insertFuneral(EntityManager em, Applicant applicant, Grave grave, Funeral funeral, Deceased deceased) {
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public Funeral insertFuneral(EntityManager em, Applicant applicant, Grave grave, Funeral funeral, Deceased deceased) throws PersistenceException {
 		ApplicantDAO aDao = new ApplicantDAO();
 		DeceasedDAO dDao = new DeceasedDAO();
 		
@@ -320,10 +352,13 @@ public class HibExecutiveBean {
 			em.persist(deceasedDB);
 		}
 		
+		funeral.setGrave(grave);
 		funeral.setApplicant(applicantDB);
 		funeral.setDeceased(deceasedDB);
 		
 		em.persist(funeral);
+		
+		return funeral;
 	}
 
 }

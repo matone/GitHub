@@ -1,16 +1,12 @@
 package main.controller;
 
-import java.rmi.Remote;
-import java.security.Permissions;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
@@ -42,6 +38,10 @@ import model.places.Sector;
 import remote.HibFacadeBeanRemote;
 
 
+/**
+ * @author Adam
+ *
+ */
 public class SchemeOverviewController {
 	
 	@FXML
@@ -82,6 +82,8 @@ public class SchemeOverviewController {
 	private Button changePersonButton;
 	@FXML
 	private Button funeralButton;
+	@FXML
+	private Button languageButton;
 	@FXML
 	private Label titleLabel;
 	@FXML
@@ -132,7 +134,6 @@ public class SchemeOverviewController {
 	private MainApp mainApp;
 	private TreeItem<Object> root;
 	private ResourceBundle resourceBundle;
-	private boolean initialized=false;
     
     
 	
@@ -143,15 +144,16 @@ public class SchemeOverviewController {
 	@FXML
 	private void initialize(){
 	
-		resetText();
-		setInitialized(true);
+		setText();
 	
 		root = new TreeItem<Object>();
 		root.setExpanded(true);
 		sectorTreeTable.setRoot(root);
 		
+		removeButton.setDisable(true);
+		changeButton.setDisable(true);
+		
 		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-			
 			
 		List<Sector> sectors = remote.getSectorTree();
 		for (Sector curSector : sectors) {
@@ -163,9 +165,7 @@ public class SchemeOverviewController {
 				curGrave.setSector(curSector);
 				item.getChildren().add(new TreeItem<Object>(curGrave));
 			}
-		}
-
-		
+		}		
 		
 		sectorTreeTable.getSelectionModel().selectedItemProperty().addListener(
 				(observable, oldValue, newValue) -> showSelectedDetails(newValue.getValue()));
@@ -186,49 +186,237 @@ public class SchemeOverviewController {
 		
 	}
 	
-	public void resetText(){
-		resourceBundle = mainApp.getResourceBundle();
-		newSectorButton.setText(resourceBundle.getString("newSectorButton"));
-		newGraveButton.setText(resourceBundle.getString("newGraveButton"));
-		changeButton.setText(resourceBundle.getString("changeButton"));
-		removeButton.setText(resourceBundle.getString("removeButton"));
-		changePersonButton.setText(resourceBundle.getString("changeButton"));
-		
-		infoLabel.setText(resourceBundle.getString("personalInfoLabel"));
-		firstNameLabel.setText(resourceBundle.getString("firstNameLabel"));
-		lastNameLabel.setText(resourceBundle.getString("lastNameLabel"));
-		funeralButton.setText(resourceBundle.getString("funeralButton"));
-		
-		showPersonDetails(null);
-		showSelectedDetails(null);
+	@FXML
+	private void handleNewSectorButton(){
+		Sector sector = new Sector();
+		boolean done = mainApp.showSectorChangeDialog(sector, false);
+		if (done){		
+			
+			HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
+			
+			Integer id = remote.insertSector(sector);
+			String msg = "New Grave not Created.";
+			
+			if (id != null){
+				sector.setId(id);
+				root.getChildren().add(new TreeItem<Object>(sector));
+				msg = "New Grave Was Successfully Created.";
+			}
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("New Grave");
+			alert.setContentText(null);
+			alert.setHeaderText(msg);
+			alert.showAndWait();
+		}
 	}
 	
-	public ObservableValue<String> getString(Object object){
-		SimpleStringProperty temp = new SimpleStringProperty();
-		if (object != sectorTreeTable.getRoot().getValue()){
-			if (object.getClass() == Grave.class){
-				temp.set(resourceBundle.getString("grave") + " "
-						+ Integer.toString(((Grave) object).getGraveNumber()));
-			} else {
-				temp.set(resourceBundle.getString("sector") + " "
-						+ Integer.toString(((Sector) object).getSectorNumber()));
+	@FXML
+	private void handleNewGraveButton() {
+		Grave grave = new Grave();
+		TreeItem<Object> item = sectorTreeTable.getSelectionModel().getSelectedItem();		
+		Sector sector = (Sector)item.getValue();
+		grave.setSector(sector);
+		
+		boolean done = mainApp.showSectorChangeDialog(grave, false);
+		if (done) {
+			
+			HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
+			
+				
+			Integer id = remote.insertGrave(grave, sector);
+			
+			String msg = "New Grave was not created.";
+			
+			if (id != null) {
+				grave.setId(id);		
+				msg = "New Grave Was Successfully Created.";
+				item.getChildren().add(new TreeItem<Object>(grave));
+				sector.setFullGravesNumber(sector.getFullGravesNumber()+1);
+			}
+			
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle("New Grave");
+			alert.setContentText(null);
+			alert.setHeaderText(msg);
+			alert.showAndWait();
+		}
+	}
+
+	@FXML
+	private void handleFuneralButton() {
+		mainApp.showFuneralRegistrationDialog((Grave)sectorTreeTable.getSelectionModel().getSelectedItem().getValue());
+		showSelectedDetails(sectorTreeTable.getSelectionModel().getSelectedItem().getValue());
+	}
+	
+	@FXML
+	private void handleChangeButton() {
+		
+		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
+		
+		Object object = sectorTreeTable.getSelectionModel().getSelectedItem().getValue();
+		String msg = "Update was not  Successful";
+		if (object.getClass() == Grave.class) {
+			mainApp.showSectorChangeDialog(object, true);
+			if (remote.updateGrave((Grave)object)) {
+				msg = "Update was  Successful";
+				showSelectedDetails(sectorTreeTable.getSelectionModel().getSelectedItem().getValue());
+			}
+		}else {
+			mainApp.showSectorChangeDialog(object, true);
+			if (remote.updateSector((Sector)object)) {
+				msg = "Update was  Successful";
+				for (TreeItem<Object> curItem : sectorTreeTable.getSelectionModel().getSelectedItem().getChildren()) {
+					((Grave)curItem.getValue()).setSector((Sector)object);
+				}
+				showSelectedDetails(sectorTreeTable.getSelectionModel().getSelectedItem().getValue());	
+			}
+		}
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("New Grave");
+		alert.setContentText(null);
+		alert.setHeaderText(msg);
+		alert.showAndWait();
+		sectorTreeTable.refresh();
+	}
+	
+	@FXML
+	private void handleRemoveButton() {
+		TreeItem<Object> selected = sectorTreeTable.getSelectionModel().getSelectedItem();
+		selected.getParent().getChildren().remove(selected);
+		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
+		String msg = "The removal was not Successful.";
+		if (selected.getValue().getClass()==Grave.class){
+			if (remote.removeGrave((Grave)selected.getValue())) {
+				msg = "Grave Was Successfully Removed.";
 			}
 		} else{
-			temp.set(resourceBundle.getString("graveyard"));
-		}
-		return temp;
+			if (remote.removeSector((Sector)selected.getValue())) {
+				msg = "Sector Was Successfully Removed.";
+			}
+		}	
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("New");
+		alert.setContentText(null);
+		alert.setHeaderText(msg);
+		alert.showAndWait();
 	}
 	
-	public void showSelectedDetails(Object object) {
+	@FXML
+	private void handleNewPersonButton() {
+		Object object = sectorTreeTable.getSelectionModel().getSelectedItem().getValue();
+		boolean done;
+		boolean classStyle;
+		Person person;
+		
+		if (object.getClass() == Grave.class) {
+			person = new Owner();
+			classStyle = true;
+		} else {
+			person = new Manager();
+			classStyle = false;
+		}
+		
+		done = mainApp.showNewPersonDialog(person, classStyle);
+		
+		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
+		
+		String msg = object.getClass().getCanonicalName() + " was not created";
+		
+		if (done) {
+			if (classStyle) {
+				Integer id = remote.insertOwner((Owner)person,(Grave)object);
+				if (id != null) {
+					person.setId(id);
+					msg = object.getClass().getCanonicalName() + " was successfully created";
+					showSelectedDetails(sectorTreeTable.getSelectionModel().getSelectedItem().getValue());
+				}
+			} else {
+				Integer id = remote.insertManager((Manager)person,(Sector)object);
+				if (id != null) {
+					person.setId(id);
+					msg = object.getClass().getCanonicalName() + " was successfully created";
+					showSelectedDetails(sectorTreeTable.getSelectionModel().getSelectedItem().getValue());
+				}
+			}
+		}
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("New");
+		alert.setContentText(null);
+		alert.setHeaderText(msg);
+		alert.showAndWait();
+	}
+	
+	@FXML
+	private void handleChangePersonButton(){
+		Object object = sectorTreeTable.getSelectionModel().getSelectedItem().getValue();
+		boolean done;
+		boolean classStyle;
+		Person person = leftTableView.getSelectionModel().getSelectedItem();
+		
+		if (object.getClass() == Grave.class) {
+			classStyle = true;
+		} else {
+			classStyle = false;
+		}
+		
+		done = mainApp.showNewPersonDialog(person, classStyle);
+		
+		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
+		
+		String msg = "Change Failed";
+		if (done) {
+			if (object.getClass() == Grave.class) {
+				if (remote.updateOwner((Owner)person)) {
+					msg = person.getClass().getCanonicalName() + " Was Successfully Changed.";	
+				}
+			} else {
+				if (remote.updateManager((Manager)person)) {
+					msg = person.getClass().getCanonicalName() + " Was Successfully Changed.";
+				}
+			}
+		}
+		
+		Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Change");
+		alert.setContentText(null);
+		alert.setHeaderText(msg);
+		alert.showAndWait();
+	}
+	
+	@FXML
+	private void handleLanguageButton(){
+		mainApp.changeLanguage();
+	}
+
+	private void showSelectedDetails(Object object) {
+		
+		showDeceasedDetails(null);
+		showPersonDetails(null);
+		
+		newGraveButton.setDisable(true);
 		
 		if ((object != null) && (object!=sectorTreeTable.getRoot().getValue())) {
+			removeButton.setDisable(false);
+			changeButton.setDisable(false);
+			newPersonButton.setDisable(false);
+			leftTableView.setVisible(true);
+			rightTableView.setVisible(true);
 			
 			if (object.getClass()==Grave.class) {	
+
 				Grave grave = null;
 				
 				HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-					
+				
 				grave = remote.getGraveById(((Grave)object).getId());
+				
+				if (grave.getAllPlacesNumber() > grave.getFullPlacesNumber()) {
+					funeralButton.setDisable(false);
+					funeralButton.setText(resourceBundle.getString("funeralButton"));
+				} else {
+					funeralButton.setDisable(true);
+					funeralButton.setText(null);
+				}
 				
 				List<Owner> ownerList = new ArrayList<Owner>();
 				
@@ -257,14 +445,14 @@ public class SchemeOverviewController {
 				rightColumn.setText(resourceBundle.getString("secondBottomColumnGrave"));
 				newPersonButton.setText(resourceBundle.getString("newPersonButtonGrave"));	
 				
-				if (grave.getAllPlacesNumber() > grave.getFullPlacesNumber()) {
-					funeralButton.setDisable(false);
-				} else {
-					funeralButton.setDisable(true);
-				}
 				
-			} else {
+			} else {				
 				Sector sector = null;
+								
+				newGraveButton.setDisable(false);
+				rightColumn.setText("-");
+				funeralButton.setDisable(true);
+				funeralButton.setText(null);
 				
 				HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
 				
@@ -287,54 +475,88 @@ public class SchemeOverviewController {
 				leftColumn.setText(resourceBundle.getString("firstBottomColumnSector"));
 				newPersonButton.setText(resourceBundle.getString("newPersonButtonSector"));
 				
-				funeralButton.setDisable(true);
 			}
 		} else {
-			titleLabel.setText("");
-			headerLabel.setText("");
-			allPlacesNumberLabel.setText("");
-			fullPlacesNumberLabel.setText("");
-			leftTableView.getItems().clear();
-			rightTableView.getItems().clear();
+			removeButton.setDisable(true);
+			changeButton.setDisable(true);
+			newPersonButton.setDisable(true);
 			funeralButton.setDisable(true);
+			
+			titleLabel.setText(null);
+			headerLabel.setText(null);
+			allPlacesNumberLabel.setText(null);
+			fullPlacesNumberLabel.setText(null);
+			
+			leftTableView.setVisible(false);
+			rightTableView.setVisible(false);
+			
+			newPersonButton.setText(null);
+			funeralButton.setText(null);
+			
+			if (leftTableView.getItems() != null) {
+				leftTableView.getItems().clear();
+			}
+			if (rightTableView.getItems() != null) {
+				rightTableView.getItems().clear();
+			}
+			
+			funeralButton.setDisable(true);
+			
 		}
-	}	
+	}
+
+	private void showPersonDetails(Person person) {
 	
-	public void showPersonDetails(Person person) {
+		cityLabel.setText(resourceBundle.getString("cityLabel"));
+		dateFromListView.getItems().clear();
+		dateToListView.getItems().clear();
+		
+		changePersonButton.setDisable(false);
+		changePersonButton.setText(resourceBundle.getString("changeButton"));
+		
 		if (person!=null) {
-			
+						
 			rightTableView.getSelectionModel().clearSelection();
-			cityLabel.setText(resourceBundle.getString("cityLabel"));
-			streetLabel.setText(resourceBundle.getString("streetLabel"));
-			postalCodeLabel.setText(resourceBundle.getString("postalCodeLabel"));
-			phoneNumberLabel.setText(resourceBundle.getString("phoneNumberLabel"));
-			emailLabel.setText(resourceBundle.getString("emailLabel"));
-			dateFromLabel.setText(resourceBundle.getString("from"));
-			dateToLabel.setText(resourceBundle.getString("to"));
-			changePersonButton.setDisable(false);
 			
+			changePersonButton.setDisable(false);
+			changePersonButton.setText(resourceBundle.getString("changeButton"));
+			
+			dateFromLabel.setVisible(true);
+			dateToLabel.setVisible(true);
+			infoLabel.setVisible(true);
+			firstNameLabel.setVisible(true);
+			firstName.setVisible(true);
 			firstName.setText(person.getFirstName());
+			lastNameLabel.setVisible(true);
+			lastName.setVisible(true);
 			lastName.setText(person.getLastName());
+			cityLabel.setVisible(true);
+			city.setVisible(true);
 			city.setText(person.getCity());
+			streetLabel.setVisible(true);
+			street.setVisible(true);
 			street.setText(person.getStreet());
+			postalCodeLabel.setVisible(true);
+			postalCode.setVisible(true);
 			postalCode.setText(person.getPostalCode());
+			phoneNumberLabel.setVisible(true);
+			phoneNumber.setVisible(true);
 			phoneNumber.setText(person.getPhoneNumber());
+			emailLabel.setVisible(true);
+			email.setVisible(true);
 			email.setText(person.getEmail());
 			
 			Object object = sectorTreeTable.getSelectionModel().getSelectedItem().getValue();
 			
 			if (object.getClass()==Grave.class) {
 				Grave grave = (Grave)object;
-				
-				dateFromListView.getItems().clear();
-				dateToListView.getItems().clear();
-				
+								
 				HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
 					
 				List<Rent> rents = remote.getRentsByGraveOwner(grave.getId(), person.getId());
 					
 				for (Rent rent : rents) {
-					dateFromListView.getItems().add(DateFormat.getInstance().format(rent.getDateFrom().getTime()));
+					dateFromListView.getItems().add(DateFormat.getDateInstance(DateFormat.LONG, mainApp.getCurrent()).format(rent.getDateFrom().getTime()));
 					if (rent.getDateTo() != null) {
 						dateToListView.getItems().add(DateFormat.getInstance().format(rent.getDateTo().getTime()));
 					} else{
@@ -343,10 +565,8 @@ public class SchemeOverviewController {
 				}
 				
 			} else {
-				Sector sector = (Sector)object;
 				
-				dateFromListView.getItems().clear();
-				dateToListView.getItems().clear();
+				Sector sector = (Sector)object;
 				
 				HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
 				
@@ -362,40 +582,61 @@ public class SchemeOverviewController {
 				}
 			}
 		} else {
-			firstName.setText(null);
-			lastName.setText(null);
-			city.setText(null);
-			street.setText(null);
-			postalCode.setText(null);
-			phoneNumber.setText(null);
-			email.setText(null);
-			dateFromListView.getItems().clear();
-			dateToListView.getItems().clear();
+			changePersonButton.setDisable(true);
+			changePersonButton.setText(null);
+			
+			infoLabel.setVisible(false);
+			firstNameLabel.setVisible(false);
+			lastNameLabel.setVisible(false);
+			cityLabel.setVisible(false);
+			streetLabel.setVisible(false);
+			postalCodeLabel.setVisible(false);
+			phoneNumberLabel.setVisible(false);
+			emailLabel.setVisible(false);
+			firstName.setVisible(false);
+			lastName.setVisible(false);
+			city.setVisible(false);
+			street.setVisible(false);
+			postalCode.setVisible(false);
+			phoneNumber.setVisible(false);
+			email.setVisible(false);
+			dateFromLabel.setVisible(false);
+			dateToLabel.setVisible(false);
 		}
 	}
 	
 	private void showDeceasedDetails(Deceased deceased) {	
-		if (deceased!=null) {
+		
+		changePersonButton.setDisable(true);
+		changePersonButton.setText(null);
+		cityLabel.setText(resourceBundle.getString("age"));
+		
+		dateFromListView.getItems().clear();
+		dateToListView.getItems().clear();
+		
+		if (deceased != null) {
 			leftTableView.getSelectionModel().clearSelection();
-			cityLabel.setText(resourceBundle.getString("age"));
-			streetLabel.setText(null);
-			postalCodeLabel.setText(null);
-			phoneNumberLabel.setText(null);
-			emailLabel.setText(null);
-			dateFromLabel.setText(resourceBundle.getString("from"));
-			dateToLabel.setText(resourceBundle.getString("to"));
-			changePersonButton.setDisable(true);
 			
+			dateFromLabel.setVisible(true);
+			dateToLabel.setVisible(true);
+			infoLabel.setVisible(true);
+			firstNameLabel.setVisible(true);
+			firstName.setVisible(true);
 			firstName.setText(deceased.getFirstName());
+			lastNameLabel.setVisible(true);
+			lastName.setVisible(true);
 			lastName.setText(deceased.getLastName());
+			cityLabel.setVisible(true);
+			city.setVisible(true);
 			city.setText(Integer.toString(deceased.getAge()));
-			street.setText(null);
-			postalCode.setText(null);
-			phoneNumber.setText(null);
-			email.setText(null);
-			
-			dateFromListView.getItems().clear();
-			dateToListView.getItems().clear();
+			streetLabel.setVisible(false);
+			street.setVisible(false);
+			postalCodeLabel.setVisible(false);
+			postalCode.setVisible(false);
+			phoneNumberLabel.setVisible(false);
+			phoneNumber.setVisible(false);
+			emailLabel.setVisible(false);
+			email.setVisible(false);			
 			
 			Grave grave = (Grave)sectorTreeTable.getSelectionModel().getSelectedItem().getValue();
 			
@@ -411,181 +652,71 @@ public class SchemeOverviewController {
 					dateToListView.getItems().add("-");
 				} 
 			}
-		} else {
-			firstName.setText(null);
-			lastName.setText(null);
-			city.setText(null);
-			street.setText(null);
-			postalCode.setText(null);
-			phoneNumber.setText(null);
-			email.setText(null);
-			dateFromListView.getItems().clear();
-			dateToListView.getItems().clear();
+		} else {		
+			infoLabel.setVisible(false);
+			firstNameLabel.setVisible(false);
+			lastNameLabel.setVisible(false);
+			cityLabel.setVisible(false);
+			streetLabel.setVisible(false);
+			postalCodeLabel.setVisible(false);
+			phoneNumberLabel.setVisible(false);
+			emailLabel.setVisible(false);
+			firstName.setVisible(false);
+			lastName.setVisible(false);
+			city.setVisible(false);
+			street.setVisible(false);
+			postalCode.setVisible(false);
+			phoneNumber.setVisible(false);
+			email.setVisible(false);
+			dateFromLabel.setVisible(false);
+			dateToLabel.setVisible(false);
 		}
 	}
-	
+		
+	/**
+	 * Initialize text in Labels
+	 */
+	public void setText(){
+		resourceBundle = mainApp.getResourceBundle();
+		
+		newSectorButton.setText(resourceBundle.getString("newSectorButton"));
+		newGraveButton.setText(resourceBundle.getString("newGraveButton"));
+		changeButton.setText(resourceBundle.getString("changeButton"));
+		removeButton.setText(resourceBundle.getString("removeButton"));
+		languageButton.setText(resourceBundle.getString("languageButton"));
+		firstNameLabel.setText(resourceBundle.getString("firstNameLabel"));
+		lastNameLabel.setText(resourceBundle.getString("lastNameLabel"));
+		streetLabel.setText(resourceBundle.getString("streetLabel"));
+		postalCodeLabel.setText(resourceBundle.getString("postalCodeLabel"));
+		phoneNumberLabel.setText(resourceBundle.getString("phoneNumberLabel"));
+		emailLabel.setText(resourceBundle.getString("emailLabel"));
+		dateFromLabel.setText(resourceBundle.getString("from"));
+		dateToLabel.setText(resourceBundle.getString("to"));
+		infoLabel.setText(resourceBundle.getString("personalInfoLabel"));
+		
+		showSelectedDetails(null);
+		
+		sectorTreeTable.refresh();
+	}
 
-	@FXML
-	private void handleNewSectorButton(){
-		Sector sector = new Sector();
-		boolean done = mainApp.showSectorChangeDialog(sector, false);
-		if (done){		
-			
-			HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-			
-			sector.setId(remote.insertSector(sector));
-			if (sector.getId() != -1){
-			root.getChildren().add(new TreeItem<Object>(sector));
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("New Grave");
-			alert.setContentText(null);
-			alert.setHeaderText("New Grave Was Successfully Created.");
-			alert.showAndWait();
-			}
-		}
-	}
-	
-	@FXML
-	private void handleNewGraveButton() {
-		Grave grave = new Grave();
-		String msg;
-		boolean done = mainApp.showSectorChangeDialog(grave, false);
-		if (done) {
-			
-			HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-			
-			TreeItem<Object> item = sectorTreeTable.getSelectionModel().getSelectedItem();
-			
-			Sector sector = (Sector)item.getValue();
-					
-			grave.setId(remote.createGrave(grave, sector));		
-			
-			if (grave.getId() != null) {
-				msg = "New Grave Was Successfully Created.";
-				item.getChildren().add(new TreeItem<Object>(grave));
-				sector.setFullGravesNumber(sector.getFullGravesNumber()+1);
+	/**
+	 * Function for observable representation of Grave/Sector number in TreeTableView
+	 * @param object Grave or Sector
+	 * @return Observable representation of object
+	 */
+	private ObservableValue<String> getString(Object object){
+		SimpleStringProperty temp = new SimpleStringProperty();
+		if (object != sectorTreeTable.getRoot().getValue()){
+			if (object.getClass() == Grave.class){
+				temp.set(resourceBundle.getString("grave") + " "
+						+ Integer.toString(((Grave) object).getGraveNumber()));
 			} else {
-				msg = "New Grave was not created to sector number " + grave.getSector().getSectorNumber()+".";			
+				temp.set(resourceBundle.getString("sector") + " "
+						+ Integer.toString(((Sector) object).getSectorNumber()));
 			}
-			
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("New Grave");
-			alert.setContentText(null);
-			alert.setHeaderText(msg);
-			alert.showAndWait();
-		}
-	}
-
-	@FXML
-	private void handleFuneralButton() {
-		Owner owner = null;
-		for (Object object : leftTableView.getItems().toArray()) {
-			
-		}
-		
-		mainApp.showFuneralRegistrationDialog((Grave)sectorTreeTable.getSelectionModel().getSelectedItem().getValue());
-	}
-	
-	@FXML
-	private void handleChangeButton() {
-		
-		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-		
-		Object object = sectorTreeTable.getSelectionModel().getSelectedItem().getValue();
-		if (object.getClass() == Grave.class) {
-			mainApp.showSectorChangeDialog(object, true);
-			remote.updateGrave((Grave)object);		
-			showSelectedDetails(sectorTreeTable.getSelectionModel().getSelectedItem().getValue());
-		}else {
-			mainApp.showSectorChangeDialog(object, true);
-			remote.updateSector((Sector)object);		
-			showSelectedDetails(sectorTreeTable.getSelectionModel().getSelectedItem().getValue());	
-		}
-	}
-	
-	@FXML
-	private void handleRemoveButton() {
-		TreeItem<Object> selected = sectorTreeTable.getSelectionModel().getSelectedItem();
-		selected.getParent().getChildren().remove(selected);
-		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-		
-		if (selected.getValue().getClass()==Grave.class){
-			remote.removeGrave((Grave)selected.getValue());
 		} else{
-			remote.removeSector((Sector)selected.getValue());
-		}		
-	}
-	
-	@FXML
-	private void handleNewPersonButton() {
-		Object object = sectorTreeTable.getSelectionModel().getSelectedItem().getValue();
-		boolean done;
-		boolean classStyle;
-		Person person;
-		
-		if (object.getClass() == Grave.class) {
-			person = new Owner();
-			classStyle = true;
-		} else {
-			person = new Manager();
-			classStyle = false;
+			temp.set(resourceBundle.getString("graveyard"));
 		}
-		
-		done = mainApp.showNewPersonDialog(person, classStyle);
-		
-		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-		
-		if (done) {
-			if (classStyle) {
-				remote.insertOwner((Owner)person,(Grave)object);
-			} else {
-				remote.insertManager((Manager)person,(Sector)object);
-			}
-			
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("New");
-			alert.setContentText(null);
-			alert.setHeaderText("The Creation Was Successful.");
-			alert.showAndWait();
-		}
+		return temp;
 	}
-	
-	@FXML
-	private void handleChangePersonButton(){
-		Object object = sectorTreeTable.getSelectionModel().getSelectedItem().getValue();
-		boolean done;
-		boolean classStyle;
-		Person person = leftTableView.getSelectionModel().getSelectedItem();
-		
-		if (object.getClass() == Grave.class) {
-			classStyle = true;
-		} else {
-			classStyle = false;
-		}
-		
-		done = mainApp.showNewPersonDialog(person, classStyle);
-		
-		HibFacadeBeanRemote remote = mainApp.getFacadeRemoteUtil().getHibFacadeBeanRemote();
-		
-		if (done) {
-			if (object.getClass() == Grave.class) {
-				remote.updateOwner((Owner)person);
-			} else {
-				remote.updateManager((Manager)person);
-			}
-			Alert alert = new Alert(AlertType.INFORMATION);
-			alert.setTitle("Change");
-			alert.setContentText(null);
-			alert.setHeaderText(person.getClass().getCanonicalName() + " Was Successfully Changed.");
-			alert.showAndWait();
-		}
-	}
-	
-	public boolean isInitialized() {
-		return initialized;
-	}
-
-	public void setInitialized(boolean initialized) {
-		this.initialized = initialized;
-	}	
 }

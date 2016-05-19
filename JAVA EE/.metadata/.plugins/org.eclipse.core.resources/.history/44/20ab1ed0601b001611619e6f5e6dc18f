@@ -1,0 +1,163 @@
+package facade;
+
+import java.util.List;
+
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import org.jboss.logging.Logger;
+
+import executive.HibExecutiveBean;
+import model.Funeral;
+import model.Management;
+import model.Rent;
+import model.people.Applicant;
+import model.people.Deceased;
+import model.people.Manager;
+import model.people.Owner;
+import model.places.Grave;
+import model.places.Sector;
+import remote.HibFacadeBeanRemote;
+
+@Stateless
+public class HibFacadeBean  implements HibFacadeBeanRemote{
+	
+	private final Logger LOGGER = Logger.getLogger(HibFacadeBean.class.getName()); 
+
+	@PersistenceContext
+	EntityManager em;
+	
+	@Override
+	public List<Sector> getSectorTree() {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Sector> sectors = hibExecutiveBean.getSectorTree(em);
+		return sectors;
+	}
+
+	@Override
+	public Grave getGraveById(int id) {
+		LOGGER.info("id = " + id);
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Grave grave = hibExecutiveBean.getGraveById(em, id);
+		return grave;
+	}
+
+	@Override
+	public Sector getSectorById(int id) {
+		LOGGER.info("id = " + id);
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Sector sector = hibExecutiveBean.getSectorById(em, id);
+		return sector;
+	}
+
+	@Override
+	public List<Rent> getRentsByGraveOwner(int graveId, int ownerId) {
+		LOGGER.info("graveId = " + graveId + "ownerId = " + ownerId);
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Rent> rents = hibExecutiveBean.getRentsByGraveOwner(em, graveId, ownerId);
+		return rents;
+	}
+
+	@Override
+	public List<Funeral> getFuneralsByGraveDeceased(int graveId, int deceasedId) {
+		LOGGER.info("graveId = " + graveId + "deceasedId = " + deceasedId);
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Funeral> funerals = hibExecutiveBean.getFuneralsByGraveDeceased(em, graveId, deceasedId);
+		return funerals;
+	}
+
+	@Override
+	public List<Management> getManagementsBySectorManager(int sectorId, int managerId) {
+		LOGGER.info("sectorId = " + sectorId + "managerId = " + managerId);
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		List<Management> managements = hibExecutiveBean.getManagementsBySectorManager(em, sectorId, managerId);
+		return managements;
+	}
+
+	@Override
+	public Integer insertSector(Sector sector) {
+		LOGGER.info("Sector: " + sector.getSectorNumber() + ", size = " + sector.getSize() + ", allGravesNumber = " + sector.getAllGravesNumber());
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		int result = hibExecutiveBean.insertSector(em, sector);
+		return result;
+	}
+
+	@Override
+	public Integer createGrave(Grave grave, Sector sector) {
+		LOGGER.info("Sector: " + sector.getId() + ", Grave: " + grave.getGraveNumber() + ", allPlacesNumber = " + grave.getAllPlacesNumber());
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Integer result = hibExecutiveBean.createGrave(em, grave, sector);
+		return result;
+	}
+
+	@Override
+	public boolean updateSector(Sector sector) {
+		LOGGER.info("Sector: " + sector.getSectorNumber() + ", size = " + sector.getSize() + ", allGravesNumber = " + sector.getAllGravesNumber());
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		boolean result = hibExecutiveBean.updateSector(em, sector);
+		return result;
+	}
+
+	@Override
+	public boolean updateGrave(Grave grave) {
+		LOGGER.info("Grave: " + grave.getGraveNumber() + ", allPlacesNumber = " + grave.getAllPlacesNumber());
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		boolean result = hibExecutiveBean.updateGrave(em, grave);
+		return result;
+	}
+
+	@Override
+	public void removeSector(Sector sector) {
+		LOGGER.info("Sector: " + sector.getId());
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		hibExecutiveBean.removeSector(em, sector);
+	}
+
+	@Override
+	public void removeGrave(Grave grave) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		hibExecutiveBean.removeGrave(em, grave);
+	}
+
+	@Override
+	public Integer insertOwner(Owner owner, Grave grave) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Integer result = hibExecutiveBean.insertOwner(em, owner, grave);
+		return result;
+	}
+
+	@Override
+	public Integer insertManager(Manager manager, Sector sector) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Integer result = hibExecutiveBean.insertManager(em, manager, sector);
+		return result;
+	}
+
+	@Override
+	public void updateOwner(Owner owner) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		hibExecutiveBean.updateOwner(em, owner);
+	}
+
+	@Override
+	public void updateManager(Manager manager) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		hibExecutiveBean.updateManager(em, manager);
+	}
+
+	@Override
+	public Grave chceckGraveForFuneral(Integer sectorNumber, Integer graveNumber) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Grave result = hibExecutiveBean.chceckGraveForFuneral(em, sectorNumber, graveNumber);
+		return result;
+	}
+
+	@Override
+	public void insertFuneral(Applicant applicant, Grave grave, Funeral funeral, Deceased deceased) {
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		hibExecutiveBean.insertFuneral(em, applicant, grave, funeral, deceased);		
+	}
+	
+
+}

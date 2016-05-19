@@ -9,7 +9,13 @@ import model.people.Applicant;
 
 public class ApplicantDAO {
 	
-public Applicant getApplicantByStats(EntityManager em, Applicant input){
+	/**
+	 * Finds applicant by given attributes
+	 * @param em The EntityManager used to create and remove persistent entity instances, to find entities by their primary key, and to query over entities.
+	 * @param input applicant, with attributes to find
+	 * @return Returns applicant with wanted attributes
+	 */
+	public Applicant getApplicantByStats(EntityManager em, Applicant input){
 		
 		TypedQuery<Applicant> q = em.createNamedQuery("Applicant.getApplicantByStats", Applicant.class)
 									.setParameter("firstName", input.getFirstName())

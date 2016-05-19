@@ -1,0 +1,48 @@
+package dao;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+
+import model.places.Grave;
+
+public class GraveDAO {
+
+	
+	/**
+	 * @param em
+	 * @param id
+	 * @return
+	 */
+	public Grave getGraveById(EntityManager em, int id){
+		
+		TypedQuery<Grave> q =  em.createNamedQuery("Grave.getGraveById", Grave.class).setParameter("id", id);
+		
+		List<Grave> graves = q.getResultList();
+
+		if (graves.size() == 0){
+			return null;
+		} else{
+			return graves.get(0);
+		}
+		
+	}
+	
+	public Grave getGraveByNumberSector(EntityManager em, Integer sectorNumber, Integer graveNumber){
+		
+		TypedQuery<Grave> q =  em.createNamedQuery("Grave.getGraveByNumberSector", Grave.class)
+													.setParameter("graveNumber", graveNumber)
+													.setParameter("sectorNumber", sectorNumber);
+		
+		List<Grave> graves = q.getResultList();
+
+		if (graves.size() == 0){
+			return null;
+		} else{
+			return graves.get(0);
+		}
+		
+	}
+	
+}

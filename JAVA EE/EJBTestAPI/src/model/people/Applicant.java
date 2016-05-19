@@ -14,7 +14,7 @@ import model.Funeral;
 @Entity
 @Table(name="applicant")
 @NamedQueries({	
-	@NamedQuery(name = "Applicant.getApplivantByStats",
+	@NamedQuery(name = "Applicant.getApplicantByStats",
 	query = "select a from Applicant a "+
 			"where a.firstName = :firstName "+
 			"AND a.lastName = :lastName "+

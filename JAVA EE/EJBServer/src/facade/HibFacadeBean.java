@@ -5,6 +5,10 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceException;
+
+import org.jboss.logging.Logger;
+
 import executive.HibExecutiveBean;
 import model.Funeral;
 import model.Management;
@@ -18,130 +22,218 @@ import model.places.Sector;
 import remote.HibFacadeBeanRemote;
 
 @Stateless
-public class HibFacadeBean  implements HibFacadeBeanRemote{
+public class HibFacadeBean implements HibFacadeBeanRemote {
+	
+	private final Logger LOGGER = Logger.getLogger("HibFacadeBean"); 
 
 	@PersistenceContext
 	EntityManager em;
 	
 	@Override
 	public List<Sector> getSectorTree() {
+		LOGGER.info("getSectorTree");
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		List<Sector> sectors = hibExecutiveBean.getSectorTree(em);
-		return sectors;
+		try {
+			List<Sector> sectors = hibExecutiveBean.getSectorTree(em);
+			return sectors;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Grave getGraveById(int id) {
+		LOGGER.info("getGraveById -> id = " + id);
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		Grave grave = hibExecutiveBean.getGraveById(em, id);
-		return grave;
+		try {
+			Grave grave = hibExecutiveBean.getGraveById(em, id);
+			return grave;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Sector getSectorById(int id) {
+		LOGGER.info("getSectorById -> id = " + id);
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		Sector sector = hibExecutiveBean.getSectorById(em, id);
-		return sector;
+		try {
+			Sector sector = hibExecutiveBean.getSectorById(em, id);
+			return sector;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public List<Rent> getRentsByGraveOwner(int graveId, int ownerId) {
+		LOGGER.info("getRentsByGraveOwner -> graveId = " + graveId + "ownerId = " + ownerId);
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		List<Rent> rents = hibExecutiveBean.getRentsByGraveOwner(em, graveId, ownerId);
-		return rents;
+		try {
+			List<Rent> rents = hibExecutiveBean.getRentsByGraveOwner(em, graveId, ownerId);
+			return rents;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public List<Funeral> getFuneralsByGraveDeceased(int graveId, int deceasedId) {
+		LOGGER.info("getFuneralsByGraveDeceased -> graveId = " + graveId + "deceasedId = " + deceasedId);
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		List<Funeral> funerals = hibExecutiveBean.getFuneralsByGraveDeceased(em, graveId, deceasedId);
-		return funerals;
+		try {
+			List<Funeral> funerals = hibExecutiveBean.getFuneralsByGraveDeceased(em, graveId, deceasedId);
+			return funerals;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public List<Management> getManagementsBySectorManager(int sectorId, int managerId) {
+		LOGGER.info("getManagementsBySectorManager -> sectorId = " + sectorId + "managerId = " + managerId);
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		List<Management> managements = hibExecutiveBean.getManagementsBySectorManager(em, sectorId, managerId);
-		return managements;
+		try {
+			List<Management> managements = hibExecutiveBean.getManagementsBySectorManager(em, sectorId, managerId);
+			return managements;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Integer insertSector(Sector sector) {
+		LOGGER.info("insertSector -> Sector: " + sector.getSectorNumber() + ", size = " + sector.getSize() + ", allGravesNumber = " + sector.getAllGravesNumber());
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		int result = hibExecutiveBean.insertSector(em, sector);
-		return result;
+		try {
+			int result = hibExecutiveBean.insertSector(em, sector);
+			return result;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
-	public Integer createGrave(Grave grave, Sector sector) {
+	public Integer insertGrave(Grave grave, Sector sector) {
+		LOGGER.info("createGrave -> Sector: " + sector.getId() + ", Grave: " + grave.getGraveNumber() + ", allPlacesNumber = " + grave.getAllPlacesNumber());
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		Integer result = hibExecutiveBean.createGrave(em, grave, sector);
-		return result;
+		try {
+			Integer result = hibExecutiveBean.createGrave(em, grave, sector);
+			return result;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public boolean updateSector(Sector sector) {
+		LOGGER.info("updateSector -> Sector: " + sector.getSectorNumber() + ", size = " + sector.getSize() + ", allGravesNumber = " + sector.getAllGravesNumber());
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		boolean result = hibExecutiveBean.updateSector(em, sector);
-		return result;
+		try {
+			hibExecutiveBean.updateSector(em, sector);
+			return true;
+		} catch (PersistenceException e) {
+			return false;
+		}
 	}
 
 	@Override
 	public boolean updateGrave(Grave grave) {
+		LOGGER.info("updateGrave -> Grave: " + grave.getGraveNumber() + ", allPlacesNumber = " + grave.getAllPlacesNumber());
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		boolean result = hibExecutiveBean.updateGrave(em, grave);
-		return result;
+		try {
+			hibExecutiveBean.updateGrave(em, grave);
+			return true;
+		} catch (PersistenceException e) {
+			return false;
+		}
 	}
 
 	@Override
-	public void removeSector(Sector sector) {
+	public boolean removeSector(Sector sector) {
+		LOGGER.info("removeSector -> Sector: " + sector.getId());
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		hibExecutiveBean.removeSector(em, sector);
+		try {
+			hibExecutiveBean.removeSector(em, sector);
+			return true;
+		} catch (PersistenceException e) {
+			return false;
+		}
 	}
 
 	@Override
-	public void removeGrave(Grave grave) {
+	public boolean removeGrave(Grave grave) {
+		LOGGER.info("removeGrave -> Grave: " + grave.getId());
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		hibExecutiveBean.removeGrave(em, grave);
+		try {
+			hibExecutiveBean.removeGrave(em, grave);
+			return true;
+		} catch (PersistenceException e) {
+			return false;
+		}
 	}
 
 	@Override
 	public Integer insertOwner(Owner owner, Grave grave) {
+		LOGGER.info("insertOwner -> Grave: " + grave.getId() + ", Owner: " + owner.getFirstName() + " " + owner.getLastName());
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		Integer result = hibExecutiveBean.insertOwner(em, owner, grave);
-		return result;
+		try {
+			Integer result = hibExecutiveBean.insertOwner(em, owner, grave);
+			return result;
+		} catch (PersistenceException e) {
+			return null;
+		}
 	}
 
 	@Override
 	public Integer insertManager(Manager manager, Sector sector) {
+		LOGGER.info("insertManager -> Sector: " + sector.getId() + ", Manager: " + manager.getFirstName() + " " + manager.getLastName());
 		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		Integer result = hibExecutiveBean.insertManager(em, manager, sector);
+		try {
+			Integer result = hibExecutiveBean.insertManager(em, manager, sector);
+			return result;
+		} catch (PersistenceException e) {
+			return null;
+		}
+	}
+
+	@Override
+	public boolean updateOwner(Owner owner) {
+		LOGGER.info("updateOwner -> Owner: " + owner.getId());
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		try {
+			hibExecutiveBean.updateOwner(em, owner);
+			return true;
+		} catch (PersistenceException e) {
+			return false;
+		}
+	}
+
+	@Override
+	public boolean updateManager(Manager manager) {
+		LOGGER.info("updateManager -> Manager: " + manager.getId());
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		try {
+			hibExecutiveBean.updateManager(em, manager);
+			return true;
+		} catch (PersistenceException e) {
+			LOGGER.fatal("Transaction Failed");
+			return false;
+		}
+	}
+
+	@Override
+	public Funeral insertFuneral(Applicant applicant, Grave grave, Funeral funeral, Deceased deceased) {
+		LOGGER.info("insertFuneral -> " + "Grave: " + grave.getId() + ", Applicant: " + applicant.getFirstName() + " " + applicant.getLastName() + ", Deceased: " + deceased.getFirstName() + " " + deceased.getLastName());
+		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
+		Funeral result = null;
+		try {
+			result = hibExecutiveBean.insertFuneral(em, applicant, grave, funeral, deceased);
+		} catch (PersistenceException e){
+			LOGGER.fatal("Transaction Failed");
+		}
+		
 		return result;
-	}
-
-	@Override
-	public void updateOwner(Owner owner) {
-		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		hibExecutiveBean.updateOwner(em, owner);
-	}
-
-	@Override
-	public void updateManager(Manager manager) {
-		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		hibExecutiveBean.updateManager(em, manager);
-	}
-
-	@Override
-	public Grave chceckGraveForFuneral(Integer sectorNumber, Integer graveNumber) {
-		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		Grave result = hibExecutiveBean.chceckGraveForFuneral(em, sectorNumber, graveNumber);
-		return result;
-	}
-
-	@Override
-	public void insertFuneral(Applicant applicant, Grave grave, Funeral funeral, Deceased deceased) {
-		HibExecutiveBean hibExecutiveBean = new HibExecutiveBean();
-		hibExecutiveBean.insertFuneral(em, applicant, grave, funeral, deceased);		
 	}
 	
 
